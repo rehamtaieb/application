@@ -7,4 +7,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password
     ports:
-      - "3306:3306"
+      - "3306:3306" 
+
+  spring-boot-app:
+    build: .
+    container_name: spring-boot-container
+    ports:
+      - "8089:8089"
