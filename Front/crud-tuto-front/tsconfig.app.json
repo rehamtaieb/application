@@ -5,6 +5,7 @@
     "types": ["jasmine", "node"]
   },
   "files": [
+    "src/main.ts",
     "src/test.ts",
     "src/polyfills.ts"
   ],
