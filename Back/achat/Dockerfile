@@ -1,15 +1,10 @@
-# Use AdoptOpenJDK 11 as base image
-FROM adoptopenjdk/openjdk11:alpine
+FROM openjdk:11
 
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Copy the packaged JAR file into the container at /app
-COPY target/my-spring-boot-app.jar /app/my-spring-boot-app.jar
+COPY target/*.jar /app.jar
 
-# Expose port 8080 to the outside world
-EXPOSE 8080
+EXPOSE 8089
 
-# Define default command to run the Spring Boot application
-CMD ["java", "-jar", "my-spring-boot-app.jar"]
-
+ENTRYPOINT ["java", "-jar", "/app.jar"]
