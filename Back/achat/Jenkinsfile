@@ -168,7 +168,7 @@ pipeline {
                 dir('Front/crud-tuto-front') {
                     script {
                         try {
-                          sh 'docker build -t mohamedridhaa/achats:tagname .'
+                          dockerImageFront = docker.build registry_front + ":tagname"
                         } catch (Exception e) {
                             emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
                             throw e
@@ -199,7 +199,9 @@ pipeline {
                 dir('Front/crud-tuto-front') {
                     script {
                         try {
-                            sh 'docker push mohamedridhaa/achats:tagname'
+                             docker.withRegistry('', registryCredential) {
+                                dockerImageFront.push()
+                            }
                             
                         } catch (Exception e) {
                             emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
