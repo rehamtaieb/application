@@ -5,6 +5,7 @@ pipeline {
         SONARQUBE_USERNAME = 'admin'
         SONARQUBE_PASSWORD = 'Facebook1'
         BRANCH_NAME = 'FournisseurTest'
+        registry-front = "mohamedridhaa/achats"
         registry = "mohamedridhaa/achat-back"
         registryCredential = 'DockerHub'
         dockerImage = ''
@@ -148,7 +149,7 @@ pipeline {
                 }
             }
         }
-        stage('Building image') {
+        stage('Building image Back') {
             steps {
                 dir('Back/achat') {
                     script {
@@ -162,14 +163,43 @@ pipeline {
                 }
             }
         }
+         stage('Building image Front') {
+            steps {
+                dir('Front/crud-tuto-front') {
+                    script {
+                        try {
+                          sh 'docker build -t mohamedridhaa/achats:tagname .'
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
         
-        stage('Deploy image on Docker') {
+        stage('Deploy Back image on Docker') {
             steps {
                 dir('Back/achat') {
                     script {
                         try {
                             docker.withRegistry('', registryCredential) {
                                 dockerImage.push()
+                            }
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+        stage('Deploy Front image on Docker') {
+            steps {
+                dir('Front/crud-tuto-front') {
+                    script {
+                        try {
+                            sh 'docker push mohamedridhaa/achats:tagname'
                             }
                         } catch (Exception e) {
                             emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
