@@ -17,6 +17,13 @@ spec:
         image: rihemmatoussi/back1:latest
         ports:
         - containerPort: 8089
+        resources:
+          requests:
+            memory: "1Gi"   # Adjust memory request as needed
+            cpu: "300m"       # Adjust CPU request as needed
+          limits:
+            memory: "2Gi"     # Adjust memory limit as needed
+            cpu: "500m"       # Adjust CPU limit as needed
         env:
         - name: SPRING_DATASOURCE_URL
           value: jdbc:mysql://mysql:3306/achatdb?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
