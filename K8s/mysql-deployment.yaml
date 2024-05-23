@@ -32,10 +32,8 @@ spec:
           value: rootpassword
         - name: MYSQL_DATABASE
           value: achatdb
-        - name: MYSQL_USER
-          value: root
-        - name: MYSQL_PASSWORD
-          value: ""
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "true"
         ports:
         - containerPort: 3306
           name: mysql
