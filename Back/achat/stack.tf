@@ -24,7 +24,7 @@ resource "openstack_compute_instance_v2" "Cirros" {
   key_pair        = "my_keypair"
   security_groups = ["default"]
   network {
-    name = "public"
+    name = "shared"
   }
 }
 
