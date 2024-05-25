@@ -24,10 +24,13 @@ resource "openstack_compute_instance_v2" "Cirros" {
   key_pair        = "my_keypair"
   security_groups = ["default"]
   network {
-    name = "private"
+    name = "public"
   }
 }
 
 resource "openstack_compute_keypair_v2" "test-keypair" {
   name = "my_keypair"
+  lifecycle {
+    ignore_changes = [name]
+  }
 }
