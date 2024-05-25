@@ -20,27 +20,6 @@ resource "openstack_compute_keypair_v2" "test-keypair" {
   name = "my_new_keypair"
 }
 
-resource "openstack_networking_network_v2" "private_network" {
-  name = "private"
-}
-
-resource "openstack_networking_subnet_v2" "private_subnet" {
-  name       = "private-subnet"
-  network_id = openstack_networking_network_v2.private_network.id
-  cidr       = "10.0.0.0/24"
-  ip_version = 4
-}
-
-resource "openstack_networking_router_v2" "router" {
-  name                = "router1"
-  external_network_id = "public"
-}
-
-resource "openstack_networking_router_interface_v2" "router_interface" {
-  router_id = openstack_networking_router_v2.router.id
-  subnet_id = openstack_networking_subnet_v2.private_subnet.id
-}
-
 resource "openstack_compute_instance_v2" "Cirros" {
   name            = "Cirros"
   image_id        = "ce620d5a-360c-457a-a25a-f6496f0947f7"
@@ -48,7 +27,7 @@ resource "openstack_compute_instance_v2" "Cirros" {
   key_pair        = openstack_compute_keypair_v2.test-keypair.name
   security_groups = ["default"]
   network {
-    name = openstack_networking_network_v2.private_network.name
+    name = "private"
   }
 }
 
