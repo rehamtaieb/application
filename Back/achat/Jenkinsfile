@@ -37,7 +37,7 @@ pipeline {
                 script {
                     try {
                         sh 'rm trufflehog || true'
-                        sh 'docker run --rm -e GIT_USERNAME=$GITHUB_CREDENTIALS_USR -e GIT_PASSWORD=$GITHUB_CREDENTIALS_PSW gesellix/trufflehog --json https://$GIT_USERNAME:$GIT_PASSWORD@github.com/rehamtaieb/application.git > trufflehog'
+                        sh 'docker run --rm -e GIT_USERNAME=$GITHUB_CREDENTIALS_USR -e GIT_PASSWORD=$GITHUB_CREDENTIALS_PSW gesellix/trufflehog --json https://github.com/rehamtaieb/application.git > trufflehog'
                         sh 'cat trufflehog'
                     } catch (Exception e) {
                         emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Trufflehog detected potential secrets in the repository. Please review and remove them before proceeding.', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
