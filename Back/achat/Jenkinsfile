@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    parameters {
+        choice(name: 'CLOUD_TYPE', choices: ['public', 'private'], description: 'Choose the cloud type for deployment')
+    }
     environment {
         SONARQUBE_URL = 'http://192.168.100.10:9000'
         SONARQUBE_USERNAME = 'admin'
@@ -228,6 +231,9 @@ pipeline {
             }
         }
         stage('AKS Deploy'){
+            when {
+                expression { params.CLOUD_TYPE == 'public' }
+            }
             steps{
                 dir('Back/achat') {
                     script {
@@ -235,6 +241,25 @@ pipeline {
                             sh 'kubectl apply -f achats-manifests.yml'
                         }
                     }               
+                }
+            }
+        }
+        stage('Terraform Deployment') {
+            when {
+                expression { params.CLOUD_TYPE == 'private' }
+            }
+            steps {
+                dir('Back/achat') {
+                    script {
+                        try {
+                            sh 'terraform init'
+                            sh 'terraform plan'
+                            sh 'terraform apply --auto-approve'
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
                 }
             }
         }
@@ -260,23 +285,6 @@ pipeline {
                 }
             }
         }
-        stage('Terraform Deployment') {
-            steps {
-                dir('Back/achat') {
-                    script {
-                        try {
-                            sh 'terraform init'
-                            sh 'terraform plan'
-                            sh 'terraform apply --auto-approve'
-                        } catch (Exception e) {
-                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
-                            throw e
-                        }
-                    }
-                }
-            }
-        }
-    }*/
-
+    */
     }
 }
