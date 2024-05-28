@@ -12,7 +12,7 @@ provider "openstack" {
   user_name   = "admin"
   tenant_name = "admin"
   password    = "secret"
-  auth_url    = "http://192.168.100.11/identity"
+  auth_url    = "http://192.168.22.18/identity"
   region      = "RegionOne"
 }
 
@@ -22,7 +22,7 @@ resource "openstack_compute_keypair_v2" "test-keypair" {
 
 resource "openstack_compute_instance_v2" "Cirros" {
   name            = "Ubuntu Minikube"
-  image_id        = "b2889b1d-9957-40cc-8d4a-ae447fa476ed"
+  image_id        = "9029164d-ab4a-4914-9da9-461512fee49d"
   flavor_id       = "d3"
   key_pair        = openstack_compute_keypair_v2.test-keypair.name
   security_groups = ["default"]
