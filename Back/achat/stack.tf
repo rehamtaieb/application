@@ -23,7 +23,7 @@ resource "tls_private_key" "ssh_key" {
 }
 
 resource "openstack_compute_keypair_v2" "ssh_key" {
-  name       = "ssh-key-1"
+  name       = "ssh-key-2"
   public_key = tls_private_key.ssh_key.public_key_openssh
 }
 
@@ -47,7 +47,7 @@ resource "openstack_compute_floatingip_associate_v2" "fip_assoc" {
   instance_id = openstack_compute_instance_v2.Cirros.id
 }
 output "instance_ip" {
-  value = openstack_compute_instance_v2.Cirros[0].access_ip_v4
+  value = openstack_compute_instance_v2.Cirros.access_ip_v4
   sensitive = true
 }
 
