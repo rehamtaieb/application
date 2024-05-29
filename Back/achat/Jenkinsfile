@@ -266,6 +266,9 @@ pipeline {
             }
         }
         stage('Ansible Playbook') {
+             when {
+                expression { params.CLOUD_TYPE == 'private' }
+            }
             steps {
                 script {
                     try {

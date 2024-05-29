@@ -23,7 +23,7 @@ resource "tls_private_key" "ssh_key" {
 }
 
 resource "openstack_compute_keypair_v2" "ssh_key" {
-  name       = "ssh-key"
+  name       = "ssh-key-1"
   public_key = tls_private_key.ssh_key.public_key_openssh
 }
 
