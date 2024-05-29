@@ -12,19 +12,16 @@ provider "openstack" {
   user_name   = "admin"
   tenant_name = "admin"
   password    = "secret"
-  auth_url    = "http://192.168.22.18/identity"
+  auth_url    = "http://192.168.22.85/identity"
   region      = "RegionOne"
 }
 
-resource "openstack_compute_keypair_v2" "test-keypair" {
-  name = "ssh-key"
-}
 
 resource "openstack_compute_instance_v2" "Cirros" {
   name            = "Ubuntu Minikube"
   image_id        = "9029164d-ab4a-4914-9da9-461512fee49d"
   flavor_id       = "d3"
-  key_pair        = openstack_compute_keypair_v2.test-keypair.name
+  key_pair        = "ssh-key"
   security_groups = ["default"]
   network {
     name = "private"
