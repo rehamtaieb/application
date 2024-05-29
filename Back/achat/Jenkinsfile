@@ -265,6 +265,26 @@ pipeline {
                 }
             }
         }
+        stage('Ansible Playbook') {
+            steps {
+                script {
+                    try {
+                        // Save the private key to a file
+                        writeFile(file: 'private_key.pem', text: terraformOutput.private_key)
+
+                        // Run the Ansible playbook
+                        ansiblePlaybook(
+                            playbook: 'ansible/minikube.yml',
+                            inventory: 'ansible/hosts',
+                            extras: '-i "instance_ip," --private-key private_key.pem'
+                        )
+                    } catch (Exception e) {
+                        emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Ansible playbook encountered an error.', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                        throw e
+                    }
+                }
+            }
+        }
        /* stage('DAST ZAP Attacks'){
             steps{
                 script{
