@@ -265,29 +265,31 @@ pipeline {
                 }
             }
         }
-        stage('Ansible Playbook') {
-             when {
-                expression { params.CLOUD_TYPE == 'private' }
-            }
-            steps {
-                script {
-                    try {
-                        // Save the private key to a file
-                        writeFile(file: 'private_key.pem', text: terraformOutput.private_key)
+        stage('Install Ansible Playbook') {
+    when {
+        expression { params.CLOUD_TYPE == 'private' }
+    }
+    steps {
+        dir('Back/achat') {
+            script {
+                // Get the instance IP from Terraform output
+                def instanceIp = sh(script: "terraform output -json instance_ip", returnStdout: true).trim()
 
-                        // Run the Ansible playbook
-                        ansiblePlaybook(
-                            playbook: 'ansible/minikube.yml',
-                            inventory: 'ansible/hosts',
-                            extras: '-i "instance_ip," --private-key private_key.pem'
-                        )
-                    } catch (Exception e) {
-                        emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Ansible playbook encountered an error.', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
-                        throw e
-                    }
-                }
+                // Write the private key to a file
+                writeFile(file: 'ansible/private_key.pem', text: terraformOutput.private_key)
+
+                // Execute Ansible playbook with the retrieved instance IP
+                sh '''
+                ansible-playbook \
+                    -i ansible/hosts \
+                    --private-key ansible/private_key.pem \
+                    --extra-vars "instance_ip=${instanceIp}" \
+                    ansible/minikube.yml
+                '''
             }
         }
+    }
+}
        /* stage('DAST ZAP Attacks'){
             steps{
                 script{

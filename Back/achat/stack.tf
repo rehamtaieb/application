@@ -46,6 +46,10 @@ resource "openstack_compute_floatingip_associate_v2" "fip_assoc" {
   floating_ip = openstack_networking_floatingip_v2.fip.address
   instance_id = openstack_compute_instance_v2.Cirros.id
 }
+output "instance_ip" {
+  value = openstack_compute_instance_v2.Cirros[0].access_ip_v4
+  sensitive = true
+}
 
 # Output the private key
 output "private_key" {
