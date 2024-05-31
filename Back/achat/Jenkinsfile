@@ -264,7 +264,7 @@ pipeline {
                 }
             }
         }
-        stage('Terraform Deployment') {
+        /*stage('Terraform Deployment') {
             when {
                 expression { params.CLOUD_TYPE == 'private' }
             }
@@ -307,7 +307,7 @@ pipeline {
             }
         }
     }
-}
+}*/
        /* stage('DAST ZAP Attacks'){
             steps{
                 script{
