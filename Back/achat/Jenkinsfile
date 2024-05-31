@@ -41,7 +41,7 @@ pipeline {
                     try {
                         sh 'rm trufflehog || true'
                         sh 'docker run gesellix/trufflehog --json https://github.com/rehamtaieb/application.git > trufflehog.json'
-                        sh 'cat trufflehog'
+                        sh 'cat trufflehog.json'
                     } catch (Exception e) {
                         emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Trufflehog detected potential secrets in the repository. Please review and remove them before proceeding.', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
                         throw e
