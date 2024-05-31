@@ -1,0 +1,33 @@
+<testsuites id="" name="" tests="3" failures="1" skipped="0" errors="0" time="24.560472999999998">
+<testsuite name="facture.test.ts" timestamp="2024-05-30T18:47:05.057Z" hostname="" tests="1" failures="1" skipped="0" time="23.82" errors="0">
+<testcase name="Add Facture test" classname="facture.test.ts" time="23.82">
+<failure message="facture.test.ts:3:5 Add Facture test" type="FAILURE">
+<![CDATA[  facture.test.ts:3:5 › Add Facture test ───────────────────────────────────────────────────────────
+
+    Error: page.click: Target page, context or browser has been closed
+    Call log:
+      - waiting for locator('//button[text()=\'Add \']')
+
+
+      26 |     await page.selectOption("select#archiv", { label: "oui" });
+      27 |
+    > 28 |     await page.click("//button[text()='Add ']");
+         |                ^
+      29 |
+      30 |     await page.waitForTimeout(5000);
+      31 |     await browser.close();
+
+        at C:\Users\ridha\Desktop\crud-tuto-front\tests\facture.test.ts:28:16
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="operateur.test.ts" timestamp="2024-05-30T18:47:05.057Z" hostname="" tests="1" failures="0" skipped="0" time="9.243" errors="0">
+<testcase name="Add Operateur test" classname="operateur.test.ts" time="9.243">
+</testcase>
+</testsuite>
+<testsuite name="produit.test.ts" timestamp="2024-05-30T18:47:05.057Z" hostname="" tests="1" failures="0" skipped="0" time="9.347" errors="0">
+<testcase name="Add Product test" classname="produit.test.ts" time="9.347">
+</testcase>
+</testsuite>
+</testsuites>

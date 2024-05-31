@@ -1,0 +1,223 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\ridha\\Desktop\\crud-tuto-front\\playwright.config.ts",
+    "rootDir": "C:/Users/ridha/Desktop/crud-tuto-front/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "results.xml"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/ridha/Desktop/crud-tuto-front/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/ridha/Desktop/crud-tuto-front/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "version": "1.44.1",
+    "workers": 6,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "facture.test.ts",
+      "file": "facture.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Add Facture test",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "failed",
+                  "duration": 23820,
+                  "error": {
+                    "message": "Error: page.click: Target page, context or browser has been closed\nCall log:\n  \u001b[2m- waiting for locator('//button[text()=\\'Add \\']')\u001b[22m\n",
+                    "stack": "Error: page.click: Target page, context or browser has been closed\nCall log:\n  \u001b[2m- waiting for locator('//button[text()=\\'Add \\']')\u001b[22m\n\n    at C:\\Users\\ridha\\Desktop\\crud-tuto-front\\tests\\facture.test.ts:28:16",
+                    "location": {
+                      "file": "C:\\Users\\ridha\\Desktop\\crud-tuto-front\\tests\\facture.test.ts",
+                      "column": 16,
+                      "line": 28
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mselectOption(\u001b[32m\"select#archiv\"\u001b[39m\u001b[33m,\u001b[39m { label\u001b[33m:\u001b[39m \u001b[32m\"oui\"\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 27 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m\"//button[text()='Add ']\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m5000\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 31 |\u001b[39m     \u001b[36mawait\u001b[39m browser\u001b[33m.\u001b[39mclose()\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ridha\\Desktop\\crud-tuto-front\\tests\\facture.test.ts",
+                        "column": 16,
+                        "line": 28
+                      },
+                      "message": "Error: page.click: Target page, context or browser has been closed\nCall log:\n  \u001b[2m- waiting for locator('//button[text()=\\'Add \\']')\u001b[22m\n\n\n\u001b[0m \u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mselectOption(\u001b[32m\"select#archiv\"\u001b[39m\u001b[33m,\u001b[39m { label\u001b[33m:\u001b[39m \u001b[32m\"oui\"\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 27 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m\"//button[text()='Add ']\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m5000\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 31 |\u001b[39m     \u001b[36mawait\u001b[39m browser\u001b[33m.\u001b[39mclose()\u001b[33m;\u001b[39m\u001b[0m\n\n\u001b[2m    at C:\\Users\\ridha\\Desktop\\crud-tuto-front\\tests\\facture.test.ts:28:16\u001b[22m"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2024-05-30T18:47:05.532Z",
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ridha\\Desktop\\crud-tuto-front\\tests\\facture.test.ts",
+                    "column": 16,
+                    "line": 28
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "83bbc1004ab6237dc3bb-47f16884bf6680946386",
+          "file": "facture.test.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "operateur.test.ts",
+      "file": "operateur.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Add Operateur test",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 9243,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2024-05-30T18:47:05.559Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f8848eeac22c39aa613d-a529a697f4064e2fed75",
+          "file": "operateur.test.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "produit.test.ts",
+      "file": "produit.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Add Product test",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "passed",
+                  "duration": 9347,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2024-05-30T18:47:05.553Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe1cc8b4fb895f31bc1f-69575d0210c259874636",
+          "file": "produit.test.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2024-05-30T18:47:04.938Z",
+    "duration": 24560.472999999998,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

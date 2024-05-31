@@ -1,0 +1,317 @@
+pipeline {
+    agent any
+    parameters {
+        choice(name: 'CLOUD_TYPE', choices: ['public', 'private'], description: 'Choose the cloud type for deployment')
+    }
+    environment {
+        SONARQUBE_URL = 'http://192.168.100.10:9000'
+        SONARQUBE_USERNAME = 'admin'
+        SONARQUBE_PASSWORD = 'Facebook1'
+        BRANCH_NAME = 'FournisseurTest'
+        registry_front = "mohamedridhaa/achats"
+        registry = "mohamedridhaa/achat-back"
+        registryCredential = 'DockerHub'
+        dockerImage = ''
+        INFISICAL_TOKEN = credentials('infisical-service-token')
+        SNYK_INSTALLATION = 'SnykV2Plugin'
+        SNYK_TOKEN = 'Snyk'
+        GITHUB_CREDENTIALS = credentials('Github')
+    }
+    stages {
+        stage("clone repo") {
+            steps {
+                script {
+                    try {
+                        git url: 'https://github.com/rehamtaieb/application.git',
+                            branch: 'FournisseurTest',
+                            credentialsId: 'Github'
+                    } catch (Exception e) {
+                        emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                        throw e
+                    }
+                }
+            }
+        }
+        stage('Git Secret Management') {
+            steps {
+                script {
+                    try {
+                        sh 'rm trufflehog || true'
+                        sh 'docker run gesellix/trufflehog --json https://github.com/rehamtaieb/application.git > trufflehog'
+                        sh 'cat trufflehog'
+                    } catch (Exception e) {
+                        emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Trufflehog detected potential secrets in the repository. Please review and remove them before proceeding.', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                        throw e
+                    }
+                }
+            }
+        
+        }
+        stage('Infisical Secret Management') {
+            steps { 
+                dir('Back/achat') {
+                    script {
+                        try {
+                           sh("infisical secrets --env=dev --path=/")
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Infisical Secret Management step encountered an error. Please review and remove them before proceeding.', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+        stage('snyk_analysis') {
+            steps {
+                dir('Back/achat') {
+                    script {
+                        echo 'Testing for dependencies, code source, and IaC...'
+                        try {
+                            // Scanning dependencies and code source
+                            snykSecurity(
+                                snykInstallation: SNYK_INSTALLATION,
+                                snykTokenId: SNYK_TOKEN,
+                                failOnIssues: false,
+                                monitorProjectOnBuild: true,
+                                additionalArguments: '--all-projects --d'
+                            )
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Snyk Analysis encountered an error.', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+        stage('snyk IaC'){
+            steps{
+                dir('Back/achat') {
+                    script {
+                        try {
+                            echo 'Testing IaC'
+                            sh 'SNYK_TOKEN=ab0b25ac-cdc9-4562-a3dd-cdc7bd9a5db5 snyk iac test . --report'
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                        }
+                    }
+                }
+            }
+        }
+        stage('MVN CLI') {
+            steps {
+                dir('Back/achat') {
+                    script {
+                        try {
+                            sh 'mvn clean'
+                            sh 'mvn compile'
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+        stage('Unit Tests') {
+            steps {
+                dir('Back/achat') {
+                    script {
+                        try {
+                            sh 'mvn test'
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+        stage('SonarQube') {
+            steps {
+                dir('Back/achat') {
+                    script {
+                        try {
+                            sh "mvn sonar:sonar -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONARQUBE_USERNAME} -Dsonar.password=${SONARQUBE_PASSWORD} "
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Nexus deployment') {
+            steps {
+                dir('Back/achat') {
+                    script {
+                        try {
+                            sh 'mvn clean deploy -DskipTests'
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+        stage('Building image Back') {
+            steps {
+                dir('Back/achat') {
+                    script {
+                        try {
+                            dockerImage = docker.build registry + ":tagname"
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+         stage('Building image Front') {
+            steps {
+                dir('Front/crud-tuto-front') {
+                    script {
+                        try {
+                          dockerImageFront = docker.build registry_front + ":tagname"
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy Back image on Docker') {
+            steps {
+                dir('Back/achat') {
+                    script {
+                        try {
+                            docker.withRegistry('', registryCredential) {
+                                dockerImage.push()
+                            }
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+        stage('Deploy Front image on Docker') {
+            steps {
+                dir('Front/crud-tuto-front') {
+                    script {
+                        try {
+                             docker.withRegistry('', registryCredential) {
+                                dockerImageFront.push()
+                            }
+                            
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+        stage('Snyk Containers test'){
+            steps{
+                dir('Back/achat') {
+                    script {
+                        try {
+                            echo 'Testing Containers'
+                            sh 'SNYK_TOKEN=ab0b25ac-cdc9-4562-a3dd-cdc7bd9a5db5 snyk container monitor mohamedridhaa/achats:tagname'
+                            sh 'SNYK_TOKEN=ab0b25ac-cdc9-4562-a3dd-cdc7bd9a5db5 snyk container monitor mohamedridhaa/achat-back:tagname'
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                        }
+                    }
+                }
+            }
+        }
+        stage('AKS Deploy'){
+            when {
+                expression { params.CLOUD_TYPE == 'public' }
+            }
+            steps{
+                dir('Back/achat') {
+                    script {
+                        withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'kubeconfig', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                            sh 'kubectl apply -f achats-manifests.yml'
+                        }
+                    }               
+                }
+            }
+        }
+        stage('Terraform Deployment') {
+            when {
+                expression { params.CLOUD_TYPE == 'private' }
+            }
+            steps {
+                dir('Back/achat') {
+                    script {
+                        try {
+                            sh 'terraform init'
+                            sh 'terraform plan'
+                            sh 'terraform apply --auto-approve'
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+        stage('Install Ansible Playbook') {
+    when {
+        expression { params.CLOUD_TYPE == 'private' }
+    }
+    steps {
+        dir('Back/achat') {
+            script {
+                // Get the instance IP from Terraform output
+                def instanceIp = sh(script: "terraform output -json instance_ip", returnStdout: true).trim()
+
+                // Write the private key to a file
+                writeFile(file: 'ansible/private_key.pem', text: terraformOutput.private_key)
+
+                // Execute Ansible playbook with the retrieved instance IP
+                sh '''
+                ansible-playbook \
+                    -i ansible/hosts \
+                    --private-key ansible/private_key.pem \
+                    --extra-vars "instance_ip=${instanceIp}" \
+                    ansible/minikube.yml
+                '''
+            }
+        }
+    }
+}
+       /* stage('DAST ZAP Attacks'){
+            steps{
+                script{
+                    sh 'docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://4.159.228.136/ -g gen.conf -r testreport.html'
+                }
+            }
+        }*/
+        /*
+        stage('Docker Compose') {
+            steps {
+                dir('Back/achat') {
+                    script {
+                        try {
+                            sh "docker compose up -d"
+                        } catch (Exception e) {
+                            emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                            throw e
+                        }
+                    }
+                }
+            }
+        }
+    */
+    }
+}
