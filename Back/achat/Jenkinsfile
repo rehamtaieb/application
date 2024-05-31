@@ -296,6 +296,7 @@ pipeline {
                 }
             }
         }
+        }
         /*stage('Terraform Deployment') {
             when {
                 expression { params.CLOUD_TYPE == 'private' }
