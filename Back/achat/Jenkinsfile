@@ -40,7 +40,7 @@ pipeline {
                 script {
                     try {
                         sh 'rm trufflehog || true'
-                        sh 'docker run gesellix/trufflehog --json https://github.com/rehamtaieb/application.git > trufflehog'
+                        sh 'docker run gesellix/trufflehog --json https://github.com/rehamtaieb/application.git > trufflehog.json'
                         sh 'cat trufflehog'
                     } catch (Exception e) {
                         emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Trufflehog detected potential secrets in the repository. Please review and remove them before proceeding.', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
@@ -92,7 +92,7 @@ pipeline {
                     script {
                         try {
                             echo 'Testing IaC'
-                            sh 'SNYK_TOKEN=ab0b25ac-cdc9-4562-a3dd-cdc7bd9a5db5 snyk iac test . --report'
+                            sh 'SNYK_TOKEN=ab0b25ac-cdc9-4562-a3dd-cdc7bd9a5db5 snyk iac test . --json > snyk_iac.json'
                         } catch (Exception e) {
                             emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
                         }
@@ -251,12 +251,13 @@ pipeline {
                 }
             }
         }
-       stage('Import Report to DefectDojo') {
+       stage('Import Reports to DefectDojo') {
     steps {
         script {
             // Import the report to DefectDojo
             sh 'curl -X POST "http://192.168.22.12:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 7720bd55755821192c11d23305ba3dd1493558b5" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Trivy Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@trivy-report.json" -F "product_name=DevSecOps" -F "engagement_name=Achats"'
-            sh 'curl -X POST "http://192.168.22.12:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 7720bd55755821192c11d23305ba3dd1493558b5" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Trufflehog Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@trufflehog" -F "product_name=DevSecOps" -F "engagement_name=Achats"'      
+            sh 'curl -X POST "http://192.168.22.12:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 7720bd55755821192c11d23305ba3dd1493558b5" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Trufflehog Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@trufflehog.json" -F "product_name=DevSecOps" -F "engagement_name=Achats"'      
+            sh 'curl -X POST "http://192.168.22.12:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 7720bd55755821192c11d23305ba3dd1493558b5" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Snyk Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@snyk_iac.json" -F "product_name=DevSecOps" -F "engagement_name=Achats"'
         }
 
 
