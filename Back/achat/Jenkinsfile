@@ -232,6 +232,24 @@ pipeline {
                 }
             }
         }
+        stage('Scan with Trivy') {
+            steps {
+                script {
+                    // Run Trivy scan and save the report as trivy-report.json in the workspace
+                    sh 'trivy image -f json -o ${WORKSPACE}/trivy-report.json mohamedridhaa/achat-back:tagname'
+                }
+            }
+        }
+        stage('Publish Report') {
+            steps {
+                script {
+                    // Example step to publish the report, e.g., archiving the artifacts
+                    archiveArtifacts artifacts: 'trivy-report.json', allowEmptyArchive: true
+                }
+            }
+        }
+    }
+
         stage('AKS Deploy'){
             when {
                 expression { params.CLOUD_TYPE == 'public' }
