@@ -258,12 +258,12 @@ pipeline {
             def reportContent = readFile("${WORKSPACE}/trivy-report.json").trim()
             sh """
             curl -X POST "${DEFECTDOJO_URL}/api/v2/import-scan/" \
-                -H "Authorization: Token ${DEFECTDOJO_API_TOKEN}" \
-                -H "Content-Type: application/json" \
+                -H \"Authorization: Token ${DEFECTDOJO_API_TOKEN}\" \
+                -H \"Content-Type: application/json\" \
                 -d '{
-                    "scan_type": "Trivy Scan",
-                    "file": "${reportContent}",
-                    "engagement": ${ENGAGEMENT_ID}
+                    \"scan_type\": \"Trivy Scan\",
+                    \"file\": \"${reportContent}\",
+                    \"engagement\": ${ENGAGEMENT_ID}
                 }'
             """
         }
