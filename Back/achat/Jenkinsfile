@@ -256,10 +256,7 @@ pipeline {
         script {
             // Import the report to DefectDojo
             
-            sh "curl -X POST 'http://192.168.22.12:8080/api/v2/import-scan/' \
-    -H 'Authorization: Token 7720bd55755821192c11d23305ba3dd1493558b5' \
-    -H 'Content-Type: application/json' \
-    -d '{"scan_type": "Trivy Scan", "file": "trivy-report.json", "engagement": 1}'"
+            sh 'curl -X POST "http://192.168.22.12:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 7720bd55755821192c11d23305ba3dd1493558b5" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Trivy Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@trivy-report.json" -F "product_name=DevSecOps" -F "engagement_name=Achats"'
         }
     }
 }
