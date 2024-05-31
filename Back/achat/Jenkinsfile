@@ -281,6 +281,21 @@ pipeline {
                 }
             }
         }
+
+        stage('AKS Kube-Bench'){
+            when {
+                expression { params.CLOUD_TYPE == 'public'}
+            }
+            steps{
+                script{
+                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'kubeconfig', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                            sh 'docker run --rm -v `pwd`:/host aquasec/kube-bench:latest install'
+                            sh './kube-bench --logtostderr > kube-bench-report.txt'
+                            sh 'cat kube-bench-report.txt'
+
+                }
+            }
+        }
         /*stage('Terraform Deployment') {
             when {
                 expression { params.CLOUD_TYPE == 'private' }
