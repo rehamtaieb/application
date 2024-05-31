@@ -39,7 +39,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'rm trufflehog || true'
+                        sh 'rm trufflehog.json || true'
                         sh 'docker run gesellix/trufflehog --json https://github.com/rehamtaieb/application.git > trufflehog.json'
                         sh 'cat trufflehog.json'
                     } catch (Exception e) {
