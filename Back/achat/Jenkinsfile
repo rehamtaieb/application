@@ -248,7 +248,7 @@ pipeline {
                 }
             }
         }
-    }
+    
 
         stage('AKS Deploy'){
             when {
