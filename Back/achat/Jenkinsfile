@@ -256,10 +256,10 @@ pipeline {
         script {
             // Import the report to DefectDojo
             
-            sh "curl -X POST '${DEFECTDOJO_URL}/api/v2/import-scan/' \
-                -H 'Authorization: Token ${DEFECTDOJO_API_TOKEN}' \
-                -H 'Content-Type: application/json' \
-                -d '{\"scan_type\": \"Trivy Scan\", \"file\": \"trivy-report.json\", \"engagement\": ${ENGAGEMENT_ID}}'"
+            sh "curl -X POST 'http://192.168.22.12:8080/api/v2/import-scan/' \
+    -H 'Authorization: Token 7720bd55755821192c11d23305ba3dd1493558b5' \
+    -H 'Content-Type: application/json' \
+    -d '{"scan_type": "Trivy Scan", "file": "trivy-report.json", "engagement": 1}'"
         }
     }
 }
