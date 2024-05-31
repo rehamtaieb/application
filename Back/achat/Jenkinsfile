@@ -92,7 +92,7 @@ pipeline {
                     script {
                         try {
                             echo 'Testing IaC'
-                            sh 'SNYK_TOKEN=ab0b25ac-cdc9-4562-a3dd-cdc7bd9a5db5 snyk iac test . --report > ${WORKSPACE}/snyk_iac.json'
+                            sh 'SNYK_TOKEN=ab0b25ac-cdc9-4562-a3dd-cdc7bd9a5db5 snyk iac test . --json > ${WORKSPACE}/snyk_iac.json'
                         } catch (Exception e) {
                             emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Please check the logs file bellow !!', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
                         }
