@@ -4,7 +4,8 @@ WORKDIR /app
 COPY . .
 RUN npm cache clean --force
 RUN npm install --force
-RUN npm run build --prod
+ARG configuration=production
+RUN npm run build --configuration=$configuration
 
 # Stage 2: Serve Angular app using Nginx
 FROM nginx:alpine
