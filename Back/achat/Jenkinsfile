@@ -19,7 +19,7 @@ pipeline {
         DEFECTDOJO_URL = 'http://192.168.22.12:8080/'
         DEFECTDOJO_API_TOKEN = '7720bd55755821192c11d23305ba3dd1493558b5' // Replace with your actual token
         ENGAGEMENT_ID = '1' // Replace with the actual engagement ID
-        SSH_KEY_PATH = '/home/vagrant/ansible-key/ansible.pem'
+        SSH_KEY_PATH = '/var/lib/jenkins/.ssh/ansible.pem'
     }
     stages {
         stage("clone repo") {
