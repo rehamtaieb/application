@@ -267,7 +267,7 @@ pipeline {
                     archiveArtifacts artifacts: 'trivy-report.json', allowEmptyArchive: true
                 }
             }
-        }
+        }/*
        stage('Import Reports to DefectDojo') {
     steps {
         script {
@@ -280,7 +280,7 @@ pipeline {
 
 
     }
-}
+}*/
 
 
     
@@ -332,32 +332,32 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
         stage('Install Ansible Playbook') {
     when {
         expression { params.CLOUD_TYPE == 'private' }
     }
     steps {
-        dir('Back/achat') {
+        dir('Back/achat/ansible') {
             script {
-                // Get the instance IP from Terraform output
-                def instanceIp = sh(script: "terraform output -json instance_ip", returnStdout: true).trim()
-
-                // Write the private key to a file
-                writeFile(file: 'ansible/private_key.pem', text: terraformOutput.private_key)
-
-                // Execute Ansible playbook with the retrieved instance IP
-                sh '''
-                ansible-playbook \
-                    -i ansible/hosts \
-                    --private-key ansible/private_key.pem \
-                    --extra-vars "instance_ip=${instanceIp}" \
-                    ansible/minikube.yml
-                '''
+                sh 'ansible-playbook -i /home/vagrant/inventory.ini /home/vagrant/master.yml'
+                sh 'ansible-playbook -i /home/vagrant/inventory.ini /home/vagrant/worker.yml'
             }
         }
     }
-}*/
+}
+         stage('Transfer kubeconfig') {
+            when {
+        expression { params.CLOUD_TYPE == 'private' }
+    }
+            steps {
+                script {
+                    // Copier le fichier kubeconfig du nœud master vers Jenkins
+                    sh 'scp root@192.168.22.85:/home/vagrant/.kube/config /home/vagrant/ansible-key/config'
+                }
+            }
+        }
+
        /* stage('DAST ZAP Attacks'){
             steps{
                 script{

@@ -1,0 +1,29 @@
+---
+- hosts: k8s_master
+  become: yes
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Install Kubernetes
+      apt:
+        name: ['kubelet', 'kubeadm', 'kubectl']
+        state: present
+
+    - name: Initialize Kubernetes master
+      command: kubeadm init --pod-network-cidr=10.244.0.0/16
+
+    - name: Setup kubeconfig for user
+      command: "{{ item }}"
+      with_items:
+        - mkdir -p $HOME/.kube
+        - sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+        - sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+    - name: Transfer kubeconfig to Jenkins
+      fetch:
+        src: /home/vagrant/.kube/config
+        dest: /home/vagrant/.kube/config
+        flat: yes
