@@ -82,7 +82,7 @@ spec:
     spec:
       containers:
       - name: springboot-app
-        image: rihemmatoussi/back1:latest
+        image: rihemmatoussi/back1:qa
         ports:
         - containerPort: 8089
         env:
@@ -151,7 +151,7 @@ spec:
     spec:
       containers:
       - name: angular
-        image: rihemmatoussi/front1:latest
+        image: rihemmatoussi/front1:qa
         ports:
         - containerPort: 80
 ---
