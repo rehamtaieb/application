@@ -1,51 +1,6 @@
 - hosts: k8s_master
   become: yes
   tasks:
-    - name: Clean up any existing Kubernetes setup
-      shell: kubeadm reset -f && rm -rf /etc/kubernetes/manifests /var/lib/etcd /etc/kubernetes/kubelet.conf /etc/kubernetes/admin.conf /etc/kubernetes/controller-manager.conf /etc/kubernetes/scheduler.conf
-      ignore_errors: yes
-
-    - name: Stop kubelet service
-      service:
-        name: kubelet
-        state: stopped
-
-    - name: Ensure ports are free
-      shell: |
-        fuser -k 6443/tcp || true
-        fuser -k 10259/tcp || true
-        fuser -k 10257/tcp || true
-        fuser -k 10250/tcp || true
-        fuser -k 2379/tcp || true
-        fuser -k 2380/tcp || true
-      ignore_errors: yes
-
-    - name: Check if Docker is installed
-      shell: which docker
-      register: docker_path
-      ignore_errors: yes
-
-    - debug:
-        msg: "Docker path: {{ docker_path.stdout }}"
-
-    - name: Install Docker if not installed
-      apt:
-        name: docker.io
-        state: present
-      when: docker_path.stdout == ""
-
-    - name: Unmask docker service
-      systemd:
-        name: docker.service
-        state: unmasked
-        enabled: yes
-      ignore_errors: yes
-
-    - name: Start docker service
-      service:
-        name: docker
-        state: started
-
     - name: create an empty file for Kubeadm configuring
       copy:
         content: ""
@@ -75,64 +30,30 @@
              - pods
 
     - name: initialize the cluster (this could take some time)
-      shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> /root/cluster_initialized.log 2>&1
+      shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> cluster_initialized.log
       args:
-        creates: /root/cluster_initialized.log
-
-    - name: Display initialization log for debugging
-      shell: cat /root/cluster_initialized.log
-      register: init_log
-      ignore_errors: yes
-
-    - debug:
-        msg: "{{ init_log.stdout }}"
+        chdir: /home/vagrant
+        creates: cluster_initialized.log
 
     - name: create .kube directory
+      become: yes
+      become_user: ubuntu
       file:
-        path: /root/.kube
+        path: $HOME/.kube
         state: directory
-        mode: '0755'
+        mode: 0755
 
     - name: copy admin.conf to user's kube config
       copy:
         src: /etc/kubernetes/admin.conf
-        dest: /root/.kube/config
+        dest: /home/vagrant/.kube/config
         remote_src: yes
-        owner: root
-        group: root
-        mode: '0644'
-      ignore_errors: yes
+        owner: ubuntu
 
     - name: install Pod network
-      shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml --validate=false >> /root/pod_network_setup.log 2>&1
+      become: yes
+      become_user: ubuntu
+      shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml >> pod_network_setup.log
       args:
-        creates: /root/pod_network_setup.log
-      ignore_errors: yes
-
-    - name: Display pod network setup log for debugging
-      shell: cat /root/pod_network_setup.log
-      register: pod_network_log
-      ignore_errors: yes
-
-    - debug:
-        msg: "{{ pod_network_log.stdout }}"
-
-    - name: get join command
-      shell: kubeadm token create --print-join-command
-      register: join_command_raw
-
-    - name: set join command
-      set_fact:
-        join_command: "{{ join_command_raw.stdout_lines[0] }}"
-
-- hosts: k8s_worker
-  become: yes
-  tasks:
-    - name: TCP port 6443 on master is reachable from worker
-      wait_for: "host={{ hostvars['k8s_master'].ansible_default_ipv4.address }} port=6443 timeout=60"
-
-    - name: join cluster
-      shell: "{{ hostvars['k8s_master'].join_command }} >> /root/node_joined.log"
-      args:
-        chdir: /root
-        creates: /root/node_joined.log
+        chdir: $HOME
+        creates: pod_network_setup.log
