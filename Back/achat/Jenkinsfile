@@ -340,8 +340,8 @@ pipeline {
     steps {
         dir('Back/achat/ansible') {
             script {
-                sh 'ansible-playbook -i /home/vagrant/inventory.ini ${WORKSPACE}/Back/achat/ansible/master.yml'
-                sh 'ansible-playbook -i /home/vagrant/inventory.ini ${WORKSPACE}/Back/achat/ansible/worker.yml'
+                sh 'ansible-playbook -i {WORKSPACE}/Back/achat/ansible/inventory.ini ${WORKSPACE}/Back/achat/ansible/master.yml'
+                sh 'ansible-playbook -i {WORKSPACE}/Back/achat/ansible/inventory.ini ${WORKSPACE}/Back/achat/ansible/worker.yml'
             }
         }
     }
