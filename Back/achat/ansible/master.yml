@@ -32,28 +32,26 @@
     - name: initialize the cluster (this could take some time)
       shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> cluster_initialized.log
       args:
-        chdir: /home/vagrant
+        chdir: /root
         creates: cluster_initialized.log
 
     - name: create .kube directory
-      become: yes
-      become_user: ubuntu
       file:
-        path: $HOME/.kube
+        path: /root/.kube
         state: directory
-        mode: 0755
+        mode: '0755'
 
     - name: copy admin.conf to user's kube config
       copy:
         src: /etc/kubernetes/admin.conf
-        dest: /home/vagrant/.kube/config
+        dest: /root/.kube/config
         remote_src: yes
-        owner: ubuntu
+        owner: root
+        group: root
+        mode: '0644'
 
     - name: install Pod network
-      become: yes
-      become_user: ubuntu
       shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml >> pod_network_setup.log
       args:
-        chdir: $HOME
+        chdir: /root
         creates: pod_network_setup.log
