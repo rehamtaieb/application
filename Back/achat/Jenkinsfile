@@ -340,8 +340,8 @@ pipeline {
     steps {
         dir('Back/achat/ansible') {
             script {
-                sh 'ansible-playbook -i inventory.ini ${WORKSPACE}/Back/achat/ansible/master.yml --config ansible.cfg'
-                sh 'ansible-playbook -i inventory.ini ${WORKSPACE}/Back/achat/ansible/worker.yml --config ansible.cfg'
+                sh 'ansible-playbook -i inventory.ini ${WORKSPACE}/Back/achat/ansible/master.yml '
+                sh 'ansible-playbook -i inventory.ini ${WORKSPACE}/Back/achat/ansible/worker.yml '
             }
         }
     }
