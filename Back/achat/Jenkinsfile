@@ -343,6 +343,11 @@ pipeline {
             script {
                 
             ansiblePlaybook(
+                            playbook: 'kube-dependencies.yml',
+                            inventory: 'inventory.ini',
+                            extras: '--private-key ${SSH_KEY_PATH} -u root'
+                        )    
+            ansiblePlaybook(
                             playbook: 'master.yml',
                             inventory: 'inventory.ini',
                             extras: '--private-key ${SSH_KEY_PATH} -u root'
