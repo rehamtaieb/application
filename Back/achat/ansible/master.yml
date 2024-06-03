@@ -1,10 +1,44 @@
----
 - hosts: k8s_master
   become: yes
   tasks:
+    - name: Update apt repository cache
+      apt:
+        update_cache: yes
+
+    - name: Upgrade all packages to the latest version
+      apt:
+        upgrade: dist
+        autoremove: yes
+
+    - name: Ensure conflicting packages are removed
+      apt:
+        name: containerd
+        state: absent
+
+    - name: Install prerequisites for Docker
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+
+    - name: Add Docker’s official GPG key
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
+    - name: Set up the Docker stable repository
+      command: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+    - name: Update apt repository cache again
+      apt:
+        update_cache: yes
+
     - name: Install Docker
       apt:
-        name: docker.io
+        name: docker-ce
         state: present
 
     - name: Install kubeadm, kubelet, and kubectl
@@ -37,7 +71,7 @@
   tasks:
     - name: Install Docker
       apt:
-        name: docker.io
+        name: docker-ce
         state: present
 
     - name: Install kubeadm, kubelet, and kubectl
