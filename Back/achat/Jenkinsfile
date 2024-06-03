@@ -101,7 +101,7 @@ pipeline {
                 }
             }
         }
-        stage('snyk IaC'){
+        stage('generating snyk IaC'){
             steps{
                 dir('Back/achat') {
                     script {
