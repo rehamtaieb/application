@@ -34,10 +34,18 @@
              - pods
 
     - name: initialize the cluster (this could take some time)
-      shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> cluster_initialized.log
+      shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> cluster_initialized.log 2>&1
       args:
         chdir: /root
         creates: cluster_initialized.log
+
+    - name: Display initialization log for debugging
+      shell: cat /root/cluster_initialized.log
+      register: init_log
+      ignore_errors: yes
+
+    - debug:
+        msg: "{{ init_log.stdout }}"
 
     - name: create .kube directory
       file:
@@ -53,9 +61,11 @@
         owner: root
         group: root
         mode: '0644'
+      ignore_errors: yes
 
     - name: install Pod network
       shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml >> pod_network_setup.log
       args:
         chdir: /root
         creates: pod_network_setup.log
+      ignore_errors: yes
