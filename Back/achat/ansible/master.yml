@@ -1,10 +1,17 @@
 - hosts: k8s_master
   become: yes
   tasks:
-    - name: Ensure conflicting packages are removed
+    - name: Ensure containerd and Docker are removed
       apt:
-        name: containerd
+        name: "{{ item }}"
         state: absent
+        purge: yes
+      loop:
+        - containerd
+        - docker-ce
+        - docker-ce-cli
+        - docker-ce-rootless-extras
+        - docker-scan-plugin
 
     - name: Remove any Docker repository list files
       shell: |
@@ -89,6 +96,18 @@
 - hosts: k8s_worker
   become: yes
   tasks:
+    - name: Ensure containerd and Docker are removed
+      apt:
+        name: "{{ item }}"
+        state: absent
+        purge: yes
+      loop:
+        - containerd
+        - docker-ce
+        - docker-ce-cli
+        - docker-ce-rootless-extras
+        - docker-scan-plugin
+
     - name: Install Docker
       apt:
         name: docker-ce
