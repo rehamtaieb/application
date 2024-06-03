@@ -1,7 +1,10 @@
 - hosts: k8s_master
   become: yes
   tasks:
-    
+    - name: Ensure conflicting packages are removed
+      apt:
+        name: containerd
+        state: absent
 
     - name: Remove any Docker repository list files
       shell: |
@@ -16,6 +19,12 @@
         rm -f /etc/apt/keyrings/docker-apt-keyring.asc
       args:
         warn: false
+
+    - name: Remove Docker repository from sources.list
+      lineinfile:
+        path: /etc/apt/sources.list
+        regexp: '^deb.*https://download.docker.com/linux/ubuntu'
+        state: absent
 
     - name: Create Docker keyring directory if it does not exist
       file:
