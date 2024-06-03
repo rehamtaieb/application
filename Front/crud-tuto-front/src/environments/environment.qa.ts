@@ -3,4 +3,5 @@
      apiUrl: 'http://192.168.49.103:8089',
      environmentName: 'qa'
  };
+console.log('Environment:', environment.environmentName);
    
