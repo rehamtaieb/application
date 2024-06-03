@@ -10,5 +10,5 @@ RUN npm run build -- --configuration=$configuration   # Note the double dash bef
 # Stage 2: Serve Angular app using Nginx
 FROM nginx:alpine
 COPY --from=node /app/dist/crudtuto-Front /usr/share/nginx/html
-EXPOSE 80   # Specify the port to expose, typically 80 for HTTP traffic
+EXPOSE 80  # Specify the port to expose, typically 80 for HTTP traffic
 
