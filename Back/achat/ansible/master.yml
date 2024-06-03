@@ -23,6 +23,10 @@
         fuser -k 2380/tcp || true
       ignore_errors: yes
 
+    - name: Unmask docker service
+      shell: systemctl unmask docker.service
+      ignore_errors: yes
+
     - name: Start docker service
       service:
         name: docker
