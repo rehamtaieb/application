@@ -5,13 +5,10 @@
       shell: kubeadm reset -f && rm -rf /etc/kubernetes/manifests /var/lib/etcd /etc/kubernetes/kubelet.conf /etc/kubernetes/admin.conf /etc/kubernetes/controller-manager.conf /etc/kubernetes/scheduler.conf
       ignore_errors: yes
 
-    - name: Stop kubelet and docker services
+    - name: Stop kubelet service
       service:
-        name: "{{ item }}"
+        name: kubelet
         state: stopped
-      with_items:
-        - kubelet
-        - docker
 
     - name: Ensure ports are free
       shell: |
@@ -23,8 +20,25 @@
         fuser -k 2380/tcp || true
       ignore_errors: yes
 
+    - name: Check if Docker is installed
+      shell: which docker
+      register: docker_path
+      ignore_errors: yes
+
+    - debug:
+        msg: "Docker path: {{ docker_path.stdout }}"
+
+    - name: Install Docker if not installed
+      apt:
+        name: docker.io
+        state: present
+      when: docker_path.stdout == ""
+
     - name: Unmask docker service
-      shell: systemctl unmask docker.service
+      systemd:
+        name: docker.service
+        state: unmasked
+        enabled: yes
       ignore_errors: yes
 
     - name: Start docker service
