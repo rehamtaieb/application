@@ -341,8 +341,8 @@ pipeline {
         dir('Back/achat/ansible') {
             script {
                 
-                ansiblePlaybook credentialsId: 'jenkinsAns', disableHostKeyChecking: true, installation: 'ansible', inventory: '/var/lib/jenkins/workspace/Achat/Back/achat/ansible/inventory.ini', playbook: '/var/lib/jenkins/workspace/Achat/Back/achat/ansible/master.yml', vaultTmpPath: ''
-                ansiblePlaybook credentialsId: 'jenkinsAns', disableHostKeyChecking: true, installation: 'ansible', inventory: '/var/lib/jenkins/workspace/Achat/Back/achat/ansible/inventory.ini', playbook: '/var/lib/jenkins/workspace/Achat/Back/achat/ansible/worker.yml', vaultTmpPath: ''
+                ansiblePlaybook credentialsId: 'jenkinsAns', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory.ini', playbook: 'master.yml', vaultTmpPath: ''
+                ansiblePlaybook credentialsId: 'jenkinsAns', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory.ini', playbook: 'worker.yml', vaultTmpPath: ''
             }
         }
     }
