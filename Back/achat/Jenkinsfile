@@ -340,6 +340,7 @@ pipeline {
     steps {
         dir('Back/achat/ansible') {
             script {
+                sh 'chmod 400 /home/vagrant/ansible-key/ansible.pem'
                 sh 'ansible-playbook -i inventory.ini ${WORKSPACE}/Back/achat/ansible/master.yml '
                 sh 'ansible-playbook -i inventory.ini ${WORKSPACE}/Back/achat/ansible/worker.yml '
             }
