@@ -5,6 +5,29 @@
       shell: kubeadm reset -f && rm -rf /etc/kubernetes/manifests /var/lib/etcd /etc/kubernetes/kubelet.conf /etc/kubernetes/admin.conf /etc/kubernetes/controller-manager.conf /etc/kubernetes/scheduler.conf
       ignore_errors: yes
 
+    - name: Stop kubelet and docker services
+      service:
+        name: "{{ item }}"
+        state: stopped
+      with_items:
+        - kubelet
+        - docker
+
+    - name: Ensure ports are free
+      shell: |
+        fuser -k 6443/tcp || true
+        fuser -k 10259/tcp || true
+        fuser -k 10257/tcp || true
+        fuser -k 10250/tcp || true
+        fuser -k 2379/tcp || true
+        fuser -k 2380/tcp || true
+      ignore_errors: yes
+
+    - name: Start docker service
+      service:
+        name: docker
+        state: started
+
     - name: create an empty file for Kubeadm configuring
       copy:
         content: ""
@@ -34,10 +57,9 @@
              - pods
 
     - name: initialize the cluster (this could take some time)
-      shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> cluster_initialized.log 2>&1
+      shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> /root/cluster_initialized.log 2>&1
       args:
-        chdir: /root
-        creates: cluster_initialized.log
+        creates: /root/cluster_initialized.log
 
     - name: Display initialization log for debugging
       shell: cat /root/cluster_initialized.log
@@ -64,8 +86,35 @@
       ignore_errors: yes
 
     - name: install Pod network
-      shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml >> pod_network_setup.log
+      shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml --validate=false >> /root/pod_network_setup.log 2>&1
+      args:
+        creates: /root/pod_network_setup.log
+      ignore_errors: yes
+
+    - name: Display pod network setup log for debugging
+      shell: cat /root/pod_network_setup.log
+      register: pod_network_log
+      ignore_errors: yes
+
+    - debug:
+        msg: "{{ pod_network_log.stdout }}"
+
+    - name: get join command
+      shell: kubeadm token create --print-join-command
+      register: join_command_raw
+
+    - name: set join command
+      set_fact:
+        join_command: "{{ join_command_raw.stdout_lines[0] }}"
+
+- hosts: k8s_worker
+  become: yes
+  tasks:
+    - name: TCP port 6443 on master is reachable from worker
+      wait_for: "host={{ hostvars['k8s_master'].ansible_default_ipv4.address }} port=6443 timeout=60"
+
+    - name: join cluster
+      shell: "{{ hostvars['k8s_master'].join_command }} >> /root/node_joined.log"
       args:
         chdir: /root
-        creates: pod_network_setup.log
-      ignore_errors: yes
+        creates: /root/node_joined.log
