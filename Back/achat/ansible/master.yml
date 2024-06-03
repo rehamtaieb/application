@@ -27,13 +27,14 @@
         - lsb-release
 
     - name: Add Docker’s official GPG key
-      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
 
     - name: Set up the Docker stable repository
-      command: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-
-    - name: Update apt repository cache again
-      apt:
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
         update_cache: yes
 
     - name: Install Docker
