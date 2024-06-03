@@ -1,0 +1,21 @@
+---
+- hosts: k8s_worker
+  become: yes
+  tasks:
+    - name: Add Helm repository for Grafana and Prometheus
+      command: helm repo add grafana https://grafana.github.io/helm-charts
+
+    - name: Add Helm repository for Loki
+      command: helm repo add loki https://grafana.github.io/loki/charts
+
+    - name: Update Helm repositories
+      command: helm repo update
+
+    - name: Install Prometheus using Helm
+      command: helm install prometheus grafana/prometheus
+
+    - name: Install Grafana using Helm
+      command: helm install grafana grafana/grafana
+
+    - name: Install Loki using Helm
+      command: helm install loki grafana/loki-stack

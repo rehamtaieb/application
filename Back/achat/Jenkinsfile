@@ -357,6 +357,17 @@ pipeline {
                 }
             }
         }
+         stage('Install Helm Charts') {
+             when {
+        expression { params.CLOUD_TYPE == 'private' }
+    }
+            steps {
+                script {
+                    // Exécuter le playbook Ansible pour installer les charts Helm
+                    sh 'ansible-playbook -i /home/vagrant/inventory.ini /home/vagrant/helm.yml'
+                }
+            }
+        }
 
        /* stage('DAST ZAP Attacks'){
             steps{
