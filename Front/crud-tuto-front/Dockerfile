@@ -4,8 +4,8 @@ WORKDIR /app
 COPY . .
 RUN npm cache clean --force
 RUN npm install --force
-ARG configuration=production
-RUN npm run build -- --configuration=$configuration   # Note the double dash before the --configuration argument
+ARG configuration=qa
+RUN npm run build -- --configuration=$configuration   
 
 # Stage 2: Serve Angular app using Nginx
 FROM nginx:alpine
