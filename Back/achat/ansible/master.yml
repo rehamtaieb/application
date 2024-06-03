@@ -1,59 +1,54 @@
+---
 - hosts: k8s_master
   become: yes
   tasks:
-    - name: create an empty file for Kubeadm configuring
-      copy:
-        content: ""
-        dest: /etc/kubernetes/kubeadm-config.yaml
-        force: no
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
 
-    - name: configuring the container runtime including its cgroup driver
-      blockinfile:
-        path: /etc/kubernetes/kubeadm-config.yaml
-        block: |
-             kind: ClusterConfiguration
-             apiVersion: kubeadm.k8s.io/v1beta3
-             networking:
-               podSubnet: "10.244.0.0/16"
-             ---
-             kind: KubeletConfiguration
-             apiVersion: kubelet.config.k8s.io/v1beta1
-             runtimeRequestTimeout: "15m"
-             cgroupDriver: "systemd"
-             systemReserved:
-               cpu: 100m
-               memory: 350M
-             kubeReserved:
-               cpu: 100m
-               memory: 50M
-             enforceNodeAllocatable:
-             - pods
+    - name: Install kubeadm, kubelet, and kubectl
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - kubeadm
+        - kubelet
+        - kubectl
 
-    - name: initialize the cluster (this could take some time)
-      shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> cluster_initialized.log
-      args:
-        chdir: /home/vagrant
-        creates: cluster_initialized.log
+    - name: Initialize Kubernetes master
+      command: kubeadm init --pod-network-cidr=10.244.0.0/16
+      register: kubeadm_output
+      ignore_errors: yes
 
-    - name: create .kube directory
-      become: yes
-      become_user: root
-      file:
-        path: $HOME/.kube
-        state: directory
-        mode: 0755
+    - name: Set up kubectl for the current user
+      command: "{{ item }}"
+      with_items:
+        - "mkdir -p $HOME/.kube"
+        - "cp /etc/kubernetes/admin.conf $HOME/.kube/config"
+        - "chown $(id -u):$(id -g) $HOME/.kube/config"
 
-    - name: copy admin.conf to user's kube config
-      copy:
-        src: /etc/kubernetes/admin.conf
-        dest: /home/vagrant/.kube/config
-        remote_src: yes
-        owner: ubuntu
+    - name: Install Calico network plugin
+      command: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+      when: "'calico' in kubeadm_output.stdout"
 
-    - name: install Pod network
-      become: yes
-      become_user: ubuntu
-      shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml >> pod_network_setup.log
-      args:
-        chdir: $HOME
-        creates: pod_network_setup.log
+- hosts: k8s_worker
+  become: yes
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Install kubeadm, kubelet, and kubectl
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - kubeadm
+        - kubelet
+        - kubectl
+
+    - name: Join worker nodes to the cluster
+      command: "{{ hostvars['master']['kubeadm_output']['stdout_lines'][0] }}"
+      when: "'kubeadm join' in hostvars['master']['kubeadm_output']['stdout']"
