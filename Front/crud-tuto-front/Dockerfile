@@ -13,8 +13,10 @@ RUN npm run build-${PROFILE}
 # Stage 2: Serve Angular app using Nginx
 FROM nginx:alpine
 COPY --from=node /app/dist/crudtuto-Front /usr/share/nginx/html
-COPY --from=node /app/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=node /app/Front/crud-tuto-front/nginx.conf /etc/nginx/conf.d/default.conf
 
+# Expose port 80
+EXPOSE 80
 
-EXPOSE 80  
-
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
