@@ -159,7 +159,7 @@ spec:
     spec:
       containers:
       - name: angular
-        image: rihemmatoussi/front1:prod
+        image: rihemmatoussi/front1:prodlatest
         ports:
         - containerPort: 80
         env:
