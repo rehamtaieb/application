@@ -162,6 +162,9 @@ spec:
         image: rihemmatoussi/front1:prod
         ports:
         - containerPort: 80
+        env:
+        - name: PROFILE
+          value: "production"
 ---
 apiVersion: v1
 kind: Service

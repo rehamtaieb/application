@@ -146,7 +146,7 @@ metadata:
   labels:
     app: angular
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: angular
@@ -160,6 +160,9 @@ spec:
         image: rihemmatoussi/front1:qa
         ports:
         - containerPort: 80
+        env:
+        - name: PROFILE
+          value: "qa" # Replace 'production' with the desired profile value    
 ---
 apiVersion: v1
 kind: Service

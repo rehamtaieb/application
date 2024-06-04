@@ -4,8 +4,11 @@ WORKDIR /app
 COPY . .
 RUN npm cache clean --force
 RUN npm install --force
-ARG configuration=developement 
-RUN npm run build -- --configuration=$configuration   
+ARG PROFILE
+ENV PROFILE $PROFILE
+
+RUN echo "Environment: ${PROFILE}"
+RUN npm run build-${PROFILE} 
 
 # Stage 2: Serve Angular app using Nginx
 FROM nginx:alpine
