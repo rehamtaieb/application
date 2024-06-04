@@ -87,7 +87,7 @@ spec:
     spec:
       containers:
       - name: springboot-app
-        image: rihemmatoussi/back1:prod
+        image: rihemmatoussi/back1:qa
         ports:
         - containerPort: 8089
         env:
