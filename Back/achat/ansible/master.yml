@@ -106,14 +106,20 @@
         sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
         systemctl restart containerd
 
+    - name: Check if Kubernetes GPG key already exists
+      stat:
+        path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      register: kubernetes_gpg_key
+
     - name: Add Google apt GPG key
       get_url:
         url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
         dest: /tmp/kubernetes-apt-key.gpg
+      when: not kubernetes_gpg_key.stat.exists
 
     - name: Import GPG key
       command: sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/kubernetes-apt-key.gpg
-
+      when: not kubernetes_gpg_key.stat.exists
 
     - name: add kubernetes apt repository
       shell: |
@@ -206,7 +212,7 @@
     - name: generate join command
       shell: kubeadm token create --print-join-command
       register: kubeadm_join_cmd
-      delegate_to: "{{ groups['k8s_worker'][0] }}"
+      delegate_to: "{{ groups['k8s_master'][0] }}"
 
     - set_fact:
         kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
