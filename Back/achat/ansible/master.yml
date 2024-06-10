@@ -37,26 +37,11 @@
         update_cache: yes
 
     - name: Install Kubernetes components
-      apt:
-        name:
-          - kubelet={{ kube_version }}
-          - kubeadm={{ kube_version }}
-          - kubectl={{ kube_version }}
-        state: present
-
-    - name: Hold Kubernetes packages
-      apt:
-        name:
-          - kubelet
-          - kubeadm
-          - kubectl
-        state: hold
-
-    - name: Enable and start kubelet service
-      systemd:
-        name: kubelet
-        enabled: yes
-        state: started
+      ansible.builtin.shell:
+        cmd: >
+          sudo apt-get install -y kubelet=1.29.3-1.1 kubeadm=1.29.3-1.1 kubectl=1.29.3-1.1 &&
+          sudo apt-mark hold kubelet kubeadm kubectl &&
+          sudo systemctl enable --now kubelet
 
     - name: Disable swap
       command: swapoff -a
