@@ -243,34 +243,34 @@
       debug:
         msg: "{{ join_output.stdout }}"
 
-    - name: Verify Cluster Status
-      hosts: k8s_master
-      become: yes
-      tasks:
-        - name: Check nodes status
-          command: kubectl get nodes
-          register: nodes_status
+- name: Verify Cluster Status
+  hosts: k8s_master
+  become: yes
+  tasks:
+    - name: Check nodes status
+      command: kubectl get nodes
+      register: nodes_status
 
-        - name: Display nodes status
-          debug:
-            msg: "{{ nodes_status.stdout }}"
+    - name: Display nodes status
+      debug:
+        msg: "{{ nodes_status.stdout }}"
 
-        - name: Check pods status in kube-system namespace
-          command: kubectl get pods -n kube-system
-          register: pods_status
+    - name: Check pods status in kube-system namespace
+      command: kubectl get pods -n kube-system
+      register: pods_status
 
-        - name: Display pods status
-          debug:
-            msg: "{{ pods_status.stdout }}"
+    - name: Display pods status
+      debug:
+        msg: "{{ pods_status.stdout }}"
 
-    - name: Update
-      hosts: all
-      become: yes
-      tasks:
-        - name: update all packages
-          apt:
-            update_cache: yes
-            upgrade: dist
+- name: Update
+  hosts: all
+  become: yes
+  tasks:
+    - name: update all packages
+      apt:
+        update_cache: yes
+        upgrade: dist
 
     - name: reboot if requested by the system
       shell: sleep 10 && /sbin/shutdown -r now 'rebooting as requested by the system' 
