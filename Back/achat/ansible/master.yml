@@ -235,7 +235,7 @@
         kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
 
     - name: Join worker node to cluster
-      shell: "{{ kubeadm_join }} --cri-socket /var/run/{{ container_runtime }}/{{ container_runtime }}.sock"
+      shell: "{{ kubeadm_join }}"
       register: join_output
       ignore_errors: yes
 
