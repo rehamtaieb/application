@@ -3,7 +3,7 @@
   hosts: all
   become: yes
   vars:
-    kube_version: "1.28"
+    kube_version: "v1.28.0"
     group: "appowner"
     container_runtime: containerd
     network: calico
@@ -158,7 +158,7 @@
   hosts: k8s_master
   become: yes
   vars:
-    kube_version: "1.28"
+    kube_version: "v1.28.0"
     group: "appowner"
     container_runtime: containerd
     network: calico
@@ -221,7 +221,7 @@
   hosts: k8s_worker
   become: yes
   vars:
-    kube_version: "1.28"
+    kube_version: "v1.28.0"
     group: "appowner"
     container_runtime: containerd
     network: calico
