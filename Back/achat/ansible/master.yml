@@ -169,16 +169,11 @@
       become: true
       register: reset_cluster
 
+
     - name: init kubernetes cluster
       when: reset_cluster is succeeded
       shell: |
-        kubeadm init --service-cidr {{ service_cidr }} \
-                    --kubernetes-version {{ kube_version }} \
-                    --pod-network-cidr {{ pod_network_cidr }} \
-                    --apiserver-advertise-address {{ control_plane_ip }} \
-                    --cri-socket /var/run/{{ container_runtime }}/{{ container_runtime }}.sock \
-                    {{ kubeadm_opts }} \
-                    {{ init_opts }}
+        kubeadm init kubeadm init --pod-network-cidr=192.168.0.0/24
       become: true
       register: init_cluster
 
