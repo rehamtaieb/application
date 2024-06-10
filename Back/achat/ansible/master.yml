@@ -71,8 +71,10 @@
 
     - name: add docker apt repository
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ lsb_rel.stdout }} stable
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
         state: present
+        update_cache: yes
+      when: ansible_distribution_release == 'jammy'
 
     - name: install containerd >1.6 from docker repository
       apt:
