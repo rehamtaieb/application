@@ -95,10 +95,14 @@
         sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
         systemctl restart containerd
 
-    - name: add google apt gpg key
-      apt_key:
-        url: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-        state: present
+    - name: Add Google apt GPG key
+      get_url:
+        url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+        dest: /tmp/kubernetes-apt-key.gpg
+
+    - name: Import GPG key
+      command: sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/kubernetes-apt-key.gpg
+
 
     - name: add kubernetes apt repository
       shell: |
