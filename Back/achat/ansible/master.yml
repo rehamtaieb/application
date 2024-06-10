@@ -22,10 +22,10 @@
           - gpg
         state: latest
 
-   - name: Add Kubernetes APT keyring
-  ansible.builtin.shell:
-    cmd: "curl -fsSL {{ k8s_repo_url }}Release.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/kubernetes-archive-keyring.gpg"
-    creates: /etc/apt/trusted.gpg.d/kubernetes-archive-keyring.gpg
+    - name: Add Kubernetes APT keyring
+      ansible.builtin.shell:
+        cmd: "curl -fsSL {{ k8s_repo_url }}Release.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/kubernetes-archive-keyring.gpg"
+        creates: /etc/apt/trusted.gpg.d/kubernetes-archive-keyring.gpg
 
     - name: Add Kubernetes APT repository
       ansible.builtin.command:
