@@ -354,7 +354,7 @@ pipeline {
         }
     }
 }
-         stage('Transfer kubeconfig') {
+        /* stage('Transfer kubeconfig') {
             when {
         expression { params.CLOUD_TYPE == 'private' }
     }
@@ -364,15 +364,19 @@ pipeline {
                     sh 'scp root@192.168.22.85:/home/vagrant/.kube/config /home/vagrant/ansible-key/config'
                 }
             }
-        }
+        }*/
          stage('Install Helm Charts') {
              when {
         expression { params.CLOUD_TYPE == 'private' }
     }
             steps {
                 script {
-                    // Exécuter le playbook Ansible pour installer les charts Helm
-                    sh 'ansible-playbook -i /home/vagrant/inventory.ini /home/vagrant/helm.yml'
+                    
+            ansiblePlaybook(
+                            playbook: 'helm.yml',
+                            inventory: 'inventory.ini',
+                            extras: '--private-key ${SSH_KEY_PATH} -u root'
+                        )
                 }
             }
         }

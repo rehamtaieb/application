@@ -1,127 +1,197 @@
-- hosts: k8s_master
+---
+- name: Setup Kubernetes Cluster
+  hosts: all
   become: yes
+  vars:
+    kube_version: "1.29.3-1.1"
+    containerd_version: "1.6.28-2"
+    k8s_repo_url: "https://pkgs.k8s.io/core:/stable:/v1.29/deb/"
+    docker_gpg_url: "https://download.docker.com/linux/ubuntu/gpg"
+    calico_operator_url: "https://raw.githubusercontent.com/projectcalico/calico/v3.27.3/manifests/tigera-operator.yaml"
+    calico_resources_url: "https://raw.githubusercontent.com/projectcalico/calico/v3.27.3/manifests/custom-resources.yaml"
+    calico_custom_cidr: "10.11.0.0/16"
+
   tasks:
-    - name: Ensure containerd and Docker are removed
+    - name: Update apt repository and install dependencies
       apt:
-        name: "{{ item }}"
-        state: absent
-        purge: yes
-      loop:
-        - containerd
-        - docker-ce
-        - docker-ce-cli
-        - docker-ce-rootless-extras
-        - docker-scan-plugin
+        update_cache: yes
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gpg
+        state: latest
 
-    - name: Remove any Docker repository list files
-      shell: |
-        rm -f /etc/apt/sources.list.d/docker.list
-        rm -f /etc/apt/sources.list.d/docker-ce.list
-        rm -f /etc/apt/sources.list.d/docker*.list
-      args:
-        warn: false
+    - name: Add Kubernetes APT keyring
+      ansible.builtin.command:
+        cmd: "curl -fsSL {{ k8s_repo_url }}Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg"
+        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
-    - name: Remove any Docker GPG keyring
-      shell: |
-        rm -f /etc/apt/keyrings/docker-apt-keyring.asc
-      args:
-        warn: false
+    - name: Add Kubernetes APT repository
+      ansible.builtin.command:
+        cmd: "echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] {{ k8s_repo_url }} /' | sudo tee /etc/apt/sources.list.d/kubernetes.list"
+        creates: /etc/apt/sources.list.d/kubernetes.list
 
-    - name: Remove Docker repository from sources.list
-      lineinfile:
-        path: /etc/apt/sources.list
-        regexp: '^deb.*https://download.docker.com/linux/ubuntu'
-        state: absent
-
-    - name: Create Docker keyring directory if it does not exist
-      file:
-        path: /etc/apt/keyrings
-        state: directory
-        mode: '0755'
-
-    - name: Download Docker’s official GPG key
-      get_url:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        dest: /etc/apt/keyrings/docker-apt-keyring.asc
-
-    - name: Add Docker apt repository
-      apt_repository:
-        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker-apt-keyring.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
-        state: present
-        filename: docker
-
-    - name: Debug apt sources
-      shell: cat /etc/apt/sources.list /etc/apt/sources.list.d/*
-      register: apt_sources_output
-      ignore_errors: true
-
-    - name: Show apt sources
-      debug:
-        msg: "{{ apt_sources_output.stdout_lines }}"
-
-    - name: Update apt repository cache
+    - name: Update apt repository
       apt:
         update_cache: yes
 
-    - name: Install Docker
+    - name: Install Kubernetes components
       apt:
-        name: docker-ce
+        name:
+          - kubelet={{ kube_version }}
+          - kubeadm={{ kube_version }}
+          - kubectl={{ kube_version }}
         state: present
 
-    - name: Install kubeadm, kubelet, and kubectl
+    - name: Hold Kubernetes packages
       apt:
-        name: "{{ item }}"
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: hold
+
+    - name: Enable and start kubelet service
+      systemd:
+        name: kubelet
+        enabled: yes
+        state: started
+
+    - name: Disable swap
+      command: swapoff -a
+
+    - name: Ensure swap is commented in /etc/fstab
+      replace:
+        path: /etc/fstab
+        regexp: '^\s*([^#].*swap.*)$'
+        replace: '# \1'
+
+    - name: Load kernel modules
+      copy:
+        content: |
+          overlay
+          br_netfilter
+        dest: /etc/modules-load.d/k8s.conf
+
+    - name: Load overlay module
+      modprobe:
+        name: overlay
         state: present
-      loop:
-        - kubeadm
-        - kubelet
-        - kubectl
 
-    - name: Initialize Kubernetes master
-      command: kubeadm init --pod-network-cidr=10.244.0.0/16
-      register: kubeadm_output
-      ignore_errors: yes
+    - name: Load br_netfilter module
+      modprobe:
+        name: br_netfilter
+        state: present
 
-    - name: Set up kubectl for the current user
-      command: "{{ item }}"
-      with_items:
-        - "mkdir -p $HOME/.kube"
-        - "cp /etc/kubernetes/admin.conf $HOME/.kube/config"
-        - "chown $(id -u):$(id -g) $HOME/.kube/config"
+    - name: Set system configurations
+      copy:
+        content: |
+          net.bridge.bridge-nf-call-iptables = 1
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.ipv4.ip_forward = 1
+        dest: /etc/sysctl.d/k8s.conf
 
-    - name: Install Calico network plugin
-      command: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-      when: "'calico' in kubeadm_output.stdout"
+    - name: Apply sysctl settings
+      command: sysctl --system
 
-- hosts: k8s_worker
+    - name: Update apt repository and install ca-certificates and curl
+      apt:
+        update_cache: yes
+        name:
+          - ca-certificates
+          - curl
+        state: latest
+
+    - name: Add Docker's official GPG key
+      ansible.builtin.command:
+        cmd: "curl -fsSL {{ docker_gpg_url }} -o /etc/apt/keyrings/docker.asc"
+        creates: /etc/apt/keyrings/docker.asc
+
+    - name: Set permissions for Docker GPG key
+      file:
+        path: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+
+    - name: Add Docker APT repository
+      ansible.builtin.command:
+        cmd: |
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        creates: /etc/apt/sources.list.d/docker.list
+
+    - name: Update apt repository
+      apt:
+        update_cache: yes
+
+    - name: Install containerd
+      apt:
+        name: containerd.io={{ containerd_version }}
+        state: present
+
+    - name: Configure containerd
+      shell: |
+        mkdir -p /etc/containerd
+        containerd config default > /etc/containerd/config.toml
+      args:
+        creates: /etc/containerd/config.toml
+
+    - name: Enable SystemdCgroup for containerd
+      replace:
+        path: /etc/containerd/config.toml
+        regexp: 'SystemdCgroup = false'
+        replace: 'SystemdCgroup = true'
+
+    - name: Restart containerd
+      systemd:
+        name: containerd
+        state: restarted
+        enabled: yes
+
+    - name: Restart kubelet
+      systemd:
+        name: kubelet
+        state: restarted
+        enabled: yes
+
+- name: Initialize Kubernetes Control Plane
+  hosts: k8s_master
   become: yes
   tasks:
-    - name: Ensure containerd and Docker are removed
-      apt:
-        name: "{{ item }}"
-        state: absent
-        purge: yes
-      loop:
-        - containerd
-        - docker-ce
-        - docker-ce-cli
-        - docker-ce-rootless-extras
-        - docker-scan-plugin
+    - name: Initialize Kubernetes master node
+      command: kubeadm init --pod-network-cidr={{ calico_custom_cidr }}
+      register: kubeadm_init
 
-    - name: Install Docker
-      apt:
-        name: docker-ce
-        state: present
+    - name: Copy kubeconfig to user's home directory
+      command: >
+        /bin/bash -c "
+        mkdir -p $HOME/.kube &&
+        cp -i /etc/kubernetes/admin.conf $HOME/.kube/config &&
+        chown $(id -u):$(id -g) $HOME/.kube/config"
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+      when: kubeadm_init is succeeded
 
-    - name: Install kubeadm, kubelet, and kubectl
-      apt:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - kubeadm
-        - kubelet
-        - kubectl
+    - name: Deploy Calico network
+      command: kubectl apply -f {{ calico_operator_url }}
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+      when: kubeadm_init is succeeded
 
-    - name: Join worker nodes to the cluster
-      command: "{{ hostvars['master']['kubeadm_output']['stdout_lines'][0] }}"
-      when: "'kubeadm join' in hostvars['master']['kubeadm_output']['stdout']"
+    - name: Download and modify Calico custom resources
+      command: >
+        /bin/bash -c "
+        wget {{ calico_resources_url }} &&
+        sed -i 's/cidr: 192.168.0.0\/16/cidr: {{ calico_custom_cidr }}/g' custom-resources.yaml &&
+        kubectl apply -f custom-resources.yaml"
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+      when: kubeadm_init is succeeded
+
+- name: Join Worker Nodes
+  hosts: k8s_worker
+  become: yes
+  vars:
+    master_ip: "192.168.22.85"
+  tasks:
+    - name: Join worker node to the Kubernetes cluster
+      shell: kubeadm join {{ master_ip }}:6443 --token {{ hostvars['master']['kubeadm_init'].stdout_lines | select("search", "token") | list | first | regex_search("[a-z0-9.]+") }} --discovery-token-ca-cert-hash {{ hostvars['master']['kubeadm_init'].stdout_lines | select("search", "sha256") | list | first | regex_search("sha256:[a-f0-9]+") }}
