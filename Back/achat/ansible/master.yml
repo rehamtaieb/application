@@ -114,9 +114,10 @@
       apt:
         update_cache: yes
         pkg:
-          - kubelet={{ kube_version + '-00' }}
-          - kubeadm={{ kube_version + '-00' }}
-          - kubectl={{ kube_version + '-00' }}
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
 
     - name: exclude kube components from apt upgrades
       shell: |
