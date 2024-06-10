@@ -74,12 +74,16 @@
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
         state: present
         update_cache: yes
+        cache_valid_time: 3600
       when: ansible_distribution_release == 'jammy'
+
 
     - name: install containerd >1.6 from docker repository
       apt:
         update_cache: yes
         name: containerd.io
+        cache_valid_time: 3600
+
 
     - name: configure containerd
       shell: |
@@ -96,8 +100,10 @@
     - name: add kubernetes apt repository
       shell: |
         echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
         sudo apt-get update
+      become: yes
+      cache_valid_time: 3600
+
       
       
 
