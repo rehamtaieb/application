@@ -9,7 +9,7 @@
     network: calico
     service_cidr: "10.96.0.0/12"
     pod_network_cidr: "10.244.0.0/16"
-    control_plane_ip: "{{ hostvars[groups['control_planes'][0]]['ansible_default_ipv4'].address | default(groups['control_planes'][0]) }}"
+    control_plane_ip: "192.168.22.85"
 
     kubeadm_opts: ""
     init_opts: ""
@@ -195,7 +195,7 @@
     - name: generate join command
       shell: kubeadm token create --print-join-command
       register: kubeadm_join_cmd
-      delegate_to: "{{ groups['control_planes'][0] }}"
+      delegate_to: "{{ groups['k8s_worker'][0] }}"
 
     - set_fact:
         kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
