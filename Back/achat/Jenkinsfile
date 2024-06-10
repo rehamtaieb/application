@@ -370,6 +370,7 @@ pipeline {
         expression { params.CLOUD_TYPE == 'private' }
     }
             steps {
+                dir('Back/achat/ansible') {
                 script {
                     
             ansiblePlaybook(
@@ -378,6 +379,7 @@ pipeline {
                             extras: '--private-key ${SSH_KEY_PATH} -u root'
                         )
                 }
+            }
             }
         }
 
