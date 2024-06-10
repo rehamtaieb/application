@@ -93,7 +93,7 @@
 
     - name: add kubernetes apt repository
       apt_repository:
-        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        repo: deb https://apt.kubernetes.io/ kubernetes-jammy main
         state: present
         filename: 'kubernetes'
 
