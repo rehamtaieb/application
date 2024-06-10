@@ -3,7 +3,7 @@
   hosts: all
   become: yes
   vars:
-    kube_version: "1.26.1"
+    kube_version: "1.29"
     group: "appowner"
     container_runtime: containerd
     network: calico
@@ -91,11 +91,13 @@
         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
         state: present
 
-    - name: add kubernetes apt repository
-      apt_repository:
-        repo: deb https://apt.kubernetes.io/ kubernetes-jammy main
-        state: present
-        filename: 'kubernetes'
+   - name: add kubernetes apt repository
+      shell: |
+        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/{{ kube_version }}/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/{{ kube_version }}/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        sudo apt-get update
+      state: present
+      
 
     - name: install kubernetes
       apt:
