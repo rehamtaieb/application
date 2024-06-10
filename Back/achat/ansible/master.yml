@@ -3,7 +3,7 @@
   hosts: all
   become: yes
   vars:
-    kube_version: "1.29"
+    kube_version: "1.28"
     group: "appowner"
     container_runtime: containerd
     network: calico
@@ -93,8 +93,8 @@
 
     - name: add kubernetes apt repository
       shell: |
-        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/{{ kube_version }}/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-        curl -fsSL https://pkgs.k8s.io/core:/stable:/{{ kube_version }}/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
         sudo apt-get update
       
       
