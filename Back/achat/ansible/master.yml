@@ -225,8 +225,8 @@
     kubeadm_opts: ""
     init_opts: ""
    
-  tasks:
-    - name: generate join command
+   tasks:
+    - name: Generate join command
       shell: kubeadm token create --print-join-command
       register: kubeadm_join_cmd
       delegate_to: "{{ groups['k8s_master'][0] }}"
@@ -234,18 +234,43 @@
     - set_fact:
         kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
 
-    - name: join worker node to cluster
-      shell: "{{ kubeadm_join }}"
-      become: true
+    - name: Join worker node to cluster
+      shell: "{{ kubeadm_join }} --cri-socket /var/run/{{ container_runtime }}/{{ container_runtime }}.sock"
+      register: join_output
+      ignore_errors: yes
 
-- name: Update
-  hosts: all
-  become: yes
-  tasks:
-    - name: update all packages
-      apt:
-        update_cache: yes
-        upgrade: dist
+    - name: Check join command output
+      debug:
+        msg: "{{ join_output.stdout }}"
+
+    - name: Verify Cluster Status
+      hosts: k8s_master
+      become: yes
+      tasks:
+        - name: Check nodes status
+          command: kubectl get nodes
+          register: nodes_status
+
+        - name: Display nodes status
+          debug:
+            msg: "{{ nodes_status.stdout }}"
+
+        - name: Check pods status in kube-system namespace
+          command: kubectl get pods -n kube-system
+          register: pods_status
+
+        - name: Display pods status
+          debug:
+            msg: "{{ pods_status.stdout }}"
+
+    - name: Update
+      hosts: all
+      become: yes
+      tasks:
+        - name: update all packages
+          apt:
+            update_cache: yes
+            upgrade: dist
 
     - name: reboot if requested by the system
       shell: sleep 10 && /sbin/shutdown -r now 'rebooting as requested by the system' 
