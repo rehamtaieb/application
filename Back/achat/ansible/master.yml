@@ -24,39 +24,40 @@
           - "service_cidr: {{ service_cidr }}"
           - "pod_network_cidr: {{ pod_network_cidr }}"
           - "control_plane_ip: {{ control_plane_ip }}"
-
+          
     - name: Update apt cache
-      apt:
-        update_cache: yes
+      shell: |
+        apt-get update
+      become: yes
 
-    - name: Disable swap
+    - name: disable swap
       shell: |
         swapoff -a
         sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
-    - name: Load necessary kernel modules
+    - name: modprobe
       shell: |
         modprobe overlay
         modprobe br_netfilter
 
-    - name: Create containerd config file
+    - name: create containerd config file
       file:
         path: "/etc/modules-load.d/containerd.conf"
         state: "touch"
 
-    - name: Add containerd module configuration
+    - name: add conf for containerd
       blockinfile:
         path: "/etc/modules-load.d/containerd.conf"
         block: |
           overlay
           br_netfilter
 
-    - name: Set system configurations for Kubernetes networking
+    - name: set system configurations for Kubernetes networking
       file:
         path: "/etc/sysctl.d/99-kubernetes-cri.conf"
         state: "touch"
 
-    - name: Add system configurations for Kubernetes networking
+    - name: add conf for containerd
       blockinfile:
         path: "/etc/sysctl.d/99-kubernetes-cri.conf"
         block: |
@@ -64,27 +65,32 @@
           net.ipv4.ip_forward                 = 1
           net.bridge.bridge-nf-call-ip6tables = 1
 
-    - name: Apply sysctl settings
+    - name: apply new settings
       command: sysctl --system
 
-    - name: Add Docker apt GPG key
+    - name: add docker apt gpg key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
-    - name: Add Docker apt repository
+    - name: get OS release name
+      command: "lsb_release -cs"
+      changed_when: false
+      register: lsb_rel
+
+    - name: add docker apt repository
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
         state: present
         update_cache: yes
+      when: ansible_distribution_release == 'jammy'
 
-    - name: Install containerd
+    - name: install containerd >1.6 from docker repository
       apt:
-        name: containerd.io
-        state: present
         update_cache: yes
+        name: containerd.io
 
-    - name: Configure containerd
+    - name: configure containerd
       shell: |
         mkdir -p /etc/containerd
         containerd config default | tee /etc/containerd/config.toml
@@ -96,41 +102,42 @@
         path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
       register: kubernetes_gpg_key
 
-    - name: Add Kubernetes GPG key
+    - name: Add Google apt GPG key
       get_url:
         url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
         dest: /tmp/kubernetes-apt-key.gpg
       when: not kubernetes_gpg_key.stat.exists
 
-    - name: Import Kubernetes GPG key
-      command: gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/kubernetes-apt-key.gpg
+    - name: Import GPG key
+      command: sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/kubernetes-apt-key.gpg
       when: not kubernetes_gpg_key.stat.exists
 
-    - name: Add Kubernetes apt repository
+    - name: add kubernetes apt repository
       shell: |
         echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-        apt-get update
-
-    - name: Install Kubernetes components
+        sudo apt-get update
+    
+    - name: install kubernetes
       apt:
-        name:
+        update_cache: yes
+        pkg:
           - kubelet
           - kubeadm
           - kubectl
         state: present
-        update_cache: yes
 
-    - name: Hold Kubernetes packages
-      shell: apt-mark hold kubelet kubeadm kubectl containerd
+    - name: exclude kube components from apt upgrades
+      shell: |
+        apt-mark hold kubelet kubeadm kubectl containerd
 
-    - name: Enable and start containerd
+    - name: enable containerd systemd service
       systemd:
         state: started
         name: containerd.service
         enabled: yes
         daemon_reload: yes
 
-    - name: Enable and start kubelet
+    - name: enable kubelet systemd service
       systemd:
         state: started
         name: kubelet.service
@@ -157,11 +164,13 @@
         name: "{{ group }}"
         state: present
 
-    - name: Reset Kubernetes cluster
-      shell: kubeadm reset --force --cri-socket=/var/run/{{ container_runtime }}/{{ container_runtime }}.sock
+    - name: reset kubernetes component
+      shell: "kubeadm reset --force --cri-socket=/var/run/{{ container_runtime }}/{{ container_runtime }}.sock"
+      become: true
       register: reset_cluster
 
-    - name: Initialize Kubernetes cluster
+    - name: init kubernetes cluster
+      when: reset_cluster is succeeded
       shell: |
         kubeadm init --service-cidr {{ service_cidr }} \
                     --kubernetes-version {{ kube_version }} \
@@ -170,35 +179,37 @@
                     --cri-socket /var/run/{{ container_runtime }}/{{ container_runtime }}.sock \
                     {{ kubeadm_opts }} \
                     {{ init_opts }}
-      when: reset_cluster is succeeded
+      become: true
       register: init_cluster
 
-    - name: Create .kube directory for user
+    - name: create user .kube directory
       file:
-        path: "/home/{{ ansible_user | default(ansible_user_id) }}/.kube"
+        path: ".kube/"
         state: directory
         mode: 0755
 
-    - name: Copy admin.conf to user home directory
+    - name: copy admin.conf to user home directory
       copy:
         src: "/etc/kubernetes/admin.conf"
-        dest: "/home/{{ ansible_user | default(ansible_user_id) }}/.kube/config"
+        dest: ".kube/config"
         owner: "{{ ansible_user | default(ansible_user_id) }}"
         group: "{{ group | default(ansible_user_id) }}"
-        mode: 0644
+        mode: 0755
         remote_src: yes
+      become: true
 
-    - name: Install Calico network plugin
+    - name: install pod network
       shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
 
-    - name: Add k alias for kubectl
+    - name: Add k alias for user
       lineinfile:
         path: /home/{{ ansible_user }}/.bashrc
         line: "alias k='kubectl'"
         owner: "{{ ansible_user }}"
+        regexp: '^alias k=''kubectl''$'
         state: present
         insertafter: EOF
-        create: true
+        create: True
 
 - name: Join Worker Node
   hosts: k8s_worker
@@ -213,15 +224,14 @@
     control_plane_ip: "192.168.22.85"
     kubeadm_opts: ""
     init_opts: ""
-
-  tasks:
+   
+   tasks:
     - name: Generate join command
       shell: kubeadm token create --print-join-command
       register: kubeadm_join_cmd
       delegate_to: "{{ groups['k8s_master'][0] }}"
 
-    - name: Set join command fact
-      set_fact:
+    - set_fact:
         kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
 
     - name: Join worker node to cluster
@@ -236,6 +246,17 @@
 - name: Verify Cluster Status
   hosts: k8s_master
   become: yes
+  vars:
+    kube_version: "v1.28.0"
+    group: "appowner"
+    container_runtime: containerd
+    network: calico
+    service_cidr: "10.96.0.0/12"
+    pod_network_cidr: "10.244.0.0/16"
+    control_plane_ip: "192.168.22.85"
+    kubeadm_opts: ""
+    init_opts: ""
+    
   tasks:
     - name: Check nodes status
       command: kubectl get nodes
@@ -257,11 +278,11 @@
   hosts: all
   become: yes
   tasks:
-    - name: Update all packages
+    - name: update all packages
       apt:
         update_cache: yes
         upgrade: dist
-        
+
     - name: reboot if requested by the system
       shell: sleep 10 && /sbin/shutdown -r now 'rebooting as requested by the system' 
       args:
