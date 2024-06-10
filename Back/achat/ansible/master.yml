@@ -17,7 +17,7 @@
   tasks:
     - name: Update apt cache
       shell: |
-        sudo apt update
+        apt-get update
       become: yes
 
     - name: disable swap
@@ -79,7 +79,6 @@
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
         state: present
         update_cache: yes
-        cache_valid_time: 3600
       when: ansible_distribution_release == 'jammy'
 
 
@@ -87,7 +86,6 @@
       apt:
         update_cache: yes
         name: containerd.io
-        cache_valid_time: 3600
 
 
     - name: configure containerd
