@@ -157,6 +157,8 @@
 - name: Initialize Kubernetes Control Plane
   hosts: k8s_master
   become: yes
+  vars:
+    container_runtime: containerd  # Ensure container_runtime is defined in this play
   tasks:
     - name: reset kubernetes component
       shell: "kubeadm reset --force --cri-socket=/var/run/{{ container_runtime }}/{{ container_runtime }}.sock"
@@ -208,6 +210,8 @@
 - name: Join Worker Node
   hosts: k8s_worker
   become: yes
+  vars:
+    container_runtime: containerd  # Ensure container_runtime is defined in this play
   tasks:
     - name: generate join command
       shell: kubeadm token create --print-join-command
