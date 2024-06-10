@@ -15,6 +15,17 @@
     init_opts: ""
 
   tasks:
+    - name: Verify variables
+      debug:
+        msg:
+          - "kube_version: {{ kube_version }}"
+          - "group: {{ group }}"
+          - "container_runtime: {{ container_runtime }}"
+          - "network: {{ network }}"
+          - "service_cidr: {{ service_cidr }}"
+          - "pod_network_cidr: {{ pod_network_cidr }}"
+          - "control_plane_ip: {{ control_plane_ip }}"
+          
     - name: Update apt cache
       shell: |
         apt-get update
