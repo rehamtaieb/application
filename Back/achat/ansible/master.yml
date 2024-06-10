@@ -169,7 +169,7 @@
         path: /home/{{ ansible_user }}/.bashrc
         line: "alias k='kubectl'"
         owner: "{{ ansible_user }}"
-        regexp: '^alias k='kubectl'$'
+        regexp: '^alias k=''kubectl''$'
         state: present
         insertafter: EOF
         create: True
