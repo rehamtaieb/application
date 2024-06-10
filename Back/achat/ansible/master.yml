@@ -158,8 +158,17 @@
   hosts: k8s_master
   become: yes
   vars:
-    container_runtime: containerd  # Ensure container_runtime is defined in this play
-  tasks:
+    kube_version: "1.28"
+    group: "appowner"
+    container_runtime: containerd
+    network: calico
+    service_cidr: "10.96.0.0/12"
+    pod_network_cidr: "10.244.0.0/16"
+    control_plane_ip: "192.168.22.85"
+
+    kubeadm_opts: ""
+    init_opts: ""
+
     - name: reset kubernetes component
       shell: "kubeadm reset --force --cri-socket=/var/run/{{ container_runtime }}/{{ container_runtime }}.sock"
       become: true
@@ -211,8 +220,17 @@
   hosts: k8s_worker
   become: yes
   vars:
-    container_runtime: containerd  # Ensure container_runtime is defined in this play
-  tasks:
+    kube_version: "1.28"
+    group: "appowner"
+    container_runtime: containerd
+    network: calico
+    service_cidr: "10.96.0.0/12"
+    pod_network_cidr: "10.244.0.0/16"
+    control_plane_ip: "192.168.22.85"
+
+    kubeadm_opts: ""
+    init_opts: ""
+
     - name: generate join command
       shell: kubeadm token create --print-join-command
       register: kubeadm_join_cmd
