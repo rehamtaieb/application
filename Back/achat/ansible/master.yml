@@ -3,181 +3,206 @@
   hosts: all
   become: yes
   vars:
-    kube_version: "1.29.3-1.1"
-    containerd_version: "1.6.28-2"
-    k8s_repo_url: "https://pkgs.k8s.io/core:/stable:/v1.29/deb/"
-    docker_gpg_url: "https://download.docker.com/linux/ubuntu/gpg"
-    calico_operator_url: "https://raw.githubusercontent.com/projectcalico/calico/v3.27.3/manifests/tigera-operator.yaml"
-    calico_resources_url: "https://raw.githubusercontent.com/projectcalico/calico/v3.27.3/manifests/custom-resources.yaml"
-    calico_custom_cidr: "10.11.0.0/16"
+    kube_version: "1.26.1"
+    group: "appowner"
+    container_runtime: containerd
+    network: calico
+    service_cidr: "10.96.0.0/12"
+    pod_network_cidr: "10.244.0.0/16"
+    control_plane_ip: "{{ hostvars[groups['control_planes'][0]]['ansible_default_ipv4'].address | default(groups['control_planes'][0]) }}"
+
+    kubeadm_opts: ""
+    init_opts: ""
 
   tasks:
-    - name: Update apt repository and install dependencies
-      apt:
-        update_cache: yes
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gpg
-        state: latest
+    - name: disable swap
+      shell: |
+        swapoff -a
+        sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
-    - name: Add Kubernetes APT keyring
-      ansible.builtin.shell:
-        cmd: "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -"
-        
+    - name: modprobe
+      shell: |
+        modprobe overlay
+        modprobe br_netfilter
 
-    - name: Add Kubernetes APT repository
-      ansible.builtin.command:
-        cmd: "echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list"
-        creates: /etc/apt/sources.list.d/kubernetes.list
+    - name: create containerd config file
+      file:
+        path: "/etc/modules-load.d/containerd.conf"
+        state: "touch"
 
-    - name: Update apt repository
-      apt:
-        update_cache: yes
-
-    - name: Install Kubernetes components
-      ansible.builtin.shell:
-        cmd: >
-          sudo apt-get update
-          sudo apt-get install -y kubelet kubeadm kubectl
-          sudo apt-mark hold kubelet kubeadm kubectl
-
-
-    - name: Disable swap
-      command: swapoff -a
-
-    - name: Ensure swap is commented in /etc/fstab
-      replace:
-        path: /etc/fstab
-        regexp: '^\s*([^#].*swap.*)$'
-        replace: '# \1'
-
-    - name: Load kernel modules
-      copy:
-        content: |
+    - name: add conf for containerd
+      blockinfile:
+        path: "/etc/modules-load.d/containerd.conf"
+        block: |
           overlay
           br_netfilter
-        dest: /etc/modules-load.d/k8s.conf
 
-    - name: Load overlay module
-      modprobe:
-        name: overlay
-        state: present
+    - name: set system configurations for Kubernetes networking
+      file:
+        path: "/etc/sysctl.d/99-kubernetes-cri.conf"
+        state: "touch"
 
-    - name: Load br_netfilter module
-      modprobe:
-        name: br_netfilter
-        state: present
-
-    - name: Set system configurations
-      copy:
-        content: |
-          net.bridge.bridge-nf-call-iptables = 1
+    - name: add conf for containerd
+      blockinfile:
+        path: "/etc/sysctl.d/99-kubernetes-cri.conf"
+        block: |
+          net.bridge.bridge-nf-call-iptables  = 1
+          net.ipv4.ip_forward                 = 1
           net.bridge.bridge-nf-call-ip6tables = 1
-          net.ipv4.ip_forward = 1
-        dest: /etc/sysctl.d/k8s.conf
 
-    - name: Apply sysctl settings
+    - name: apply new settings
       command: sysctl --system
 
-    - name: Update apt repository and install ca-certificates and curl
-      apt:
-        update_cache: yes
-        name:
-          - ca-certificates
-          - curl
-        state: latest
+    # - name: install containerd
+    #   apt:
+    #     update_cache: yes
+    #     name: containerd
 
-    - name: Add Docker's official GPG key
-      ansible.builtin.command:
-        cmd: "curl -fsSL {{ docker_gpg_url }} -o /etc/apt/keyrings/docker.asc"
-        creates: /etc/apt/keyrings/docker.asc
-
-    - name: Set permissions for Docker GPG key
-      file:
-        path: /etc/apt/keyrings/docker.asc
-        mode: '0644'
-
-    - name: Add Docker APT repository
-      ansible.builtin.command:
-        cmd: |
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        creates: /etc/apt/sources.list.d/docker.list
-
-    - name: Update apt repository
-      apt:
-        update_cache: yes
-
-    - name: Install containerd
-      apt:
-        name: containerd.io={{ containerd_version }}
+    # containerd.io >1.6
+    - name: add docker apt gpg key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
-    - name: Configure containerd
+    - name: get OS release name
+      command: "lsb_release -cs"
+      changed_when: false
+      register: lsb_rel
+
+    - name: add docker apt repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ lsb_rel.stdout }} stable
+        state: present
+
+    - name: install containerd >1.6 from docker repository
+      apt:
+        update_cache: yes
+        name: containerd.io
+
+    - name: configure containerd
       shell: |
         mkdir -p /etc/containerd
-        containerd config default > /etc/containerd/config.toml
-      args:
-        creates: /etc/containerd/config.toml
+        containerd config default | tee /etc/containerd/config.toml
+        sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+        systemctl restart containerd
 
-    - name: Enable SystemdCgroup for containerd
-      replace:
-        path: /etc/containerd/config.toml
-        regexp: 'SystemdCgroup = false'
-        replace: 'SystemdCgroup = true'
+    - name: add google apt gpg key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
 
-    - name: Restart containerd
+    - name: add kubernetes apt repository
+      apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: 'kubernetes'
+
+    - name: install kubernetes
+      apt:
+        update_cache: yes
+        pkg:
+          - kubelet={{ kube_version + '-00' }}
+          - kubeadm={{ kube_version + '-00' }}
+          - kubectl={{ kube_version + '-00' }}
+
+    - name: exclude kube components from apt upgrades
+      shell: |
+        apt-mark hold kubelet kubeadm kubectl containerd
+
+    - name: enable containerd systemd service
       systemd:
-        name: containerd
-        state: restarted
+        state: started
+        name: containerd.service
         enabled: yes
+        daemon_reload: yes
 
-    - name: Restart kubelet
+    - name: enable kubelet systemd service
       systemd:
-        name: kubelet
-        state: restarted
+        state: started
+        name: kubelet.service
         enabled: yes
+        daemon_reload: yes
 
 - name: Initialize Kubernetes Control Plane
   hosts: k8s_master
   become: yes
   tasks:
-    - name: Initialize Kubernetes master node
-      command: kubeadm init --pod-network-cidr={{ calico_custom_cidr }}
-      register: kubeadm_init
+    - name: reset kubernetes component
+      shell: "kubeadm reset --force --cri-socket=/var/run/{{ container_runtime }}/{{ container_runtime }}.sock"
+      become: true
+      register: reset_cluster
 
-    - name: Copy kubeconfig to user's home directory
-      command: >
-        /bin/bash -c "
-        mkdir -p $HOME/.kube &&
-        cp -i /etc/kubernetes/admin.conf $HOME/.kube/config &&
-        chown $(id -u):$(id -g) $HOME/.kube/config"
-      environment:
-        KUBECONFIG: "/etc/kubernetes/admin.conf"
-      when: kubeadm_init is succeeded
+    - name: init kubernetes cluster
+      when: reset_cluster is succeeded
+      shell: |
+        kubeadm init --service-cidr {{ service_cidr }} \
+                    --kubernetes-version {{ kube_version }} \
+                    --pod-network-cidr {{ pod_network_cidr }} \
+                    --apiserver-advertise-address {{ control_plane_ip }} \
+                    --cri-socket /var/run/{{ container_runtime }}/{{ container_runtime }}.sock \
+                    {{ kubeadm_opts }} \
+                    {{ init_opts }}
+      become: true
+      register: init_cluster
 
-    - name: Deploy Calico network
-      command: kubectl apply -f {{ calico_operator_url }}
-      environment:
-        KUBECONFIG: "/etc/kubernetes/admin.conf"
-      when: kubeadm_init is succeeded
+    - name: create user .kube directory
+      file:
+        path: ".kube/"
+        state: directory
+        mode: 0755
 
-    - name: Download and modify Calico custom resources
-      command: >
-        /bin/bash -c "
-        wget {{ calico_resources_url }} &&
-        sed -i 's/cidr: 192.168.0.0\/16/cidr: {{ calico_custom_cidr }}/g' custom-resources.yaml &&
-        kubectl apply -f custom-resources.yaml"
-      environment:
-        KUBECONFIG: "/etc/kubernetes/admin.conf"
-      when: kubeadm_init is succeeded
+    - name: copy admin.conf to user home directory
+      copy:
+        src: "/etc/kubernetes/admin.conf"
+        dest: ".kube/config"
+        owner: "{{ ansible_user | default(ansible_user_id) }}"
+        group: "{{ group | default(ansible_user_id) }}"
+        mode: 0755
+        remote_src: yes
+      become: true
 
-- name: Join Worker Nodes
+    - name: install pod network
+      shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
+
+    - name: Add k alias for user
+      lineinfile:
+        path: /home/{{ ansible_user }}/.bashrc
+        line: "alias k='kubectl'"
+        owner: "{{ ansible_user }}"
+        regexp: '^alias k='kubectl'$'
+        state: present
+        insertafter: EOF
+        create: True
+
+- name: Join Worker Node
   hosts: k8s_worker
   become: yes
-  vars:
-    master_ip: "192.168.22.85"
   tasks:
-    - name: Join worker node to the Kubernetes cluster
-      shell: kubeadm join {{ master_ip }}:6443 --token {{ hostvars['master']['kubeadm_init'].stdout_lines | select("search", "token") | list | first | regex_search("[a-z0-9.]+") }} --discovery-token-ca-cert-hash {{ hostvars['master']['kubeadm_init'].stdout_lines | select("search", "sha256") | list | first | regex_search("sha256:[a-f0-9]+") }}
+    - name: generate join command
+      shell: kubeadm token create --print-join-command
+      register: kubeadm_join_cmd
+      delegate_to: "{{ groups['control_planes'][0] }}"
+
+    - set_fact:
+        kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
+
+    - name: join worker node to cluster
+      shell: "{{ kubeadm_join }}"
+      become: true
+
+- name: Update
+  hosts: all
+  become: yes
+  tasks:
+    - name: update all packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: reboot if requested by the system
+      shell: sleep 10 && /sbin/shutdown -r now 'rebooting as requested by the system' 
+      args:
+        removes: /var/run/reboot-required
+      async: 300
+      poll: 0
+      ignore_errors: true
