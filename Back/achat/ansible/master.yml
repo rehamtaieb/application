@@ -15,6 +15,11 @@
     init_opts: ""
 
   tasks:
+    - name: Update apt cache
+      shell: |
+        sudo apt update
+      become: yes
+
     - name: disable swap
       shell: |
         swapoff -a
