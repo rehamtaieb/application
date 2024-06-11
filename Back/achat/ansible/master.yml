@@ -173,7 +173,7 @@
     - name: init kubernetes cluster
       when: reset_cluster is succeeded
       shell: |
-        kubeadm init kubeadm init --pod-network-cidr={{ pod_network_cidr }} \
+        kubeadm init --pod-network-cidr={{ pod_network_cidr }} \
                                   --apiserver-advertise-address {{ control_plane_ip }}
       become: true
       register: init_cluster
