@@ -1,33 +1,98 @@
-<testsuites id="" name="" tests="3" failures="1" skipped="0" errors="0" time="24.560472999999998">
-<testsuite name="facture.test.ts" timestamp="2024-05-30T18:47:05.057Z" hostname="" tests="1" failures="1" skipped="0" time="23.82" errors="0">
-<testcase name="Add Facture test" classname="facture.test.ts" time="23.82">
+<testsuites id="" name="" tests="3" failures="3" skipped="0" errors="0" time="4.202268">
+<testsuite name="facture.test.ts" timestamp="2024-06-13T10:28:40.745Z" hostname="" tests="1" failures="1" skipped="0" time="3.382" errors="0">
+<testcase name="Add Facture test" classname="facture.test.ts" time="3.382">
 <failure message="facture.test.ts:3:5 Add Facture test" type="FAILURE">
 <![CDATA[  facture.test.ts:3:5 › Add Facture test ───────────────────────────────────────────────────────────
 
-    Error: page.click: Target page, context or browser has been closed
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/facture
     Call log:
-      - waiting for locator('//button[text()=\'Add \']')
+      - navigating to "http://localhost:4200/facture", waiting until "load"
 
 
-      26 |     await page.selectOption("select#archiv", { label: "oui" });
-      27 |
-    > 28 |     await page.click("//button[text()='Add ']");
+       8 |     const page = await context.newPage();
+       9 |
+    > 10 |     await page.goto("http://localhost:4200/facture");
          |                ^
-      29 |
-      30 |     await page.waitForTimeout(5000);
-      31 |     await browser.close();
+      11 |     await page.click("text=Add new Facture");
+      12 |
+      13 |     await page.fill("input[placeholder='Montant Remise']", "20");
 
-        at C:\Users\ridha\Desktop\crud-tuto-front\tests\facture.test.ts:28:16
+        at C:\Users\ridha\Desktop\Achats\application\crud-tuto-front\tests\facture.test.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\facture-Add-Facture-test\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
 ]]>
 </failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|test-results\facture-Add-Facture-test\test-failed-1.png]]
+]]>
+</system-out>
 </testcase>
 </testsuite>
-<testsuite name="operateur.test.ts" timestamp="2024-05-30T18:47:05.057Z" hostname="" tests="1" failures="0" skipped="0" time="9.243" errors="0">
-<testcase name="Add Operateur test" classname="operateur.test.ts" time="9.243">
+<testsuite name="operateur.test.ts" timestamp="2024-06-13T10:28:40.745Z" hostname="" tests="1" failures="1" skipped="0" time="3.355" errors="0">
+<testcase name="Add Operateur test" classname="operateur.test.ts" time="3.355">
+<failure message="operateur.test.ts:3:5 Add Operateur test" type="FAILURE">
+<![CDATA[  operateur.test.ts:3:5 › Add Operateur test ───────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/operateur
+    Call log:
+      - navigating to "http://localhost:4200/operateur", waiting until "load"
+
+
+       8 |     const page = await context.newPage();
+       9 |
+    > 10 |     await page.goto("http://localhost:4200/operateur");
+         |                ^
+      11 |     await page.click("text=Add new Operateur");
+      12 |
+      13 |     await page.fill("input#nom", "boulares");
+
+        at C:\Users\ridha\Desktop\Achats\application\crud-tuto-front\tests\operateur.test.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\operateur-Add-Operateur-test\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|test-results\operateur-Add-Operateur-test\test-failed-1.png]]
+]]>
+</system-out>
 </testcase>
 </testsuite>
-<testsuite name="produit.test.ts" timestamp="2024-05-30T18:47:05.057Z" hostname="" tests="1" failures="0" skipped="0" time="9.347" errors="0">
-<testcase name="Add Product test" classname="produit.test.ts" time="9.347">
+<testsuite name="produit.test.ts" timestamp="2024-06-13T10:28:40.745Z" hostname="" tests="1" failures="1" skipped="0" time="3.398" errors="0">
+<testcase name="Add Product test" classname="produit.test.ts" time="3.398">
+<failure message="produit.test.ts:3:5 Add Product test" type="FAILURE">
+<![CDATA[  produit.test.ts:3:5 › Add Product test ───────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/
+    Call log:
+      - navigating to "http://localhost:4200/", waiting until "load"
+
+
+       8 |     const page = await context.newPage();
+       9 |
+    > 10 |     await page.goto("http://localhost:4200/");
+         |                ^
+      11 |     await page.click("text=Add new Product");
+      12 |
+      13 |     await page.fill("input[placeholder='Product Code']", "5");
+
+        at C:\Users\ridha\Desktop\Achats\application\crud-tuto-front\tests\produit.test.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\produit-Add-Product-test\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|test-results\produit-Add-Product-test\test-failed-1.png]]
+]]>
+</system-out>
 </testcase>
 </testsuite>
 </testsuites>

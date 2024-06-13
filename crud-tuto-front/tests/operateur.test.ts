@@ -7,12 +7,15 @@ test("Add Operateur test", async () => {
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    await page.goto("http://localhost:4200/operateur");
+    await page.goto("http://192.168.100.10:4200/operateur");
     await page.click("text=Add new Operateur");
 
     await page.fill("input#nom", "boulares");
+    await page.waitForTimeout(1000);
     await page.fill("input#pnom", "mohamedridha");
+    await page.waitForTimeout(1000);
     await page.fill("input#pwd", "passwd");
+    await page.waitForTimeout(1000);
 
    
 
@@ -23,9 +26,13 @@ test("Add Operateur test", async () => {
    
 
     await page.click("//table[contains(@class,'table table-hover')]/tbody[1]/tr[1]/td[5]/button[1]");
+    await page.waitForTimeout(1000);
     await page.fill("input#nom", "chafai");
+    await page.waitForTimeout(1000);
     await page.fill("input#pnom", "samy");
+    await page.waitForTimeout(1000);
     await page.fill("input#pwd", "passwd");
+    await page.waitForTimeout(1000);
 
 
     await page.click("//button[text()='Add ']");

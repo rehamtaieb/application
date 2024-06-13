@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "C:\\Users\\ridha\\Desktop\\crud-tuto-front\\playwright.config.ts",
-    "rootDir": "C:/Users/ridha/Desktop/crud-tuto-front/tests",
+    "configFile": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\playwright.config.ts",
+    "rootDir": "C:/Users/ridha/Desktop/Achats/application/crud-tuto-front/tests",
     "forbidOnly": false,
     "fullyParallel": false,
     "globalSetup": null,
@@ -45,13 +45,13 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "C:/Users/ridha/Desktop/crud-tuto-front/test-results",
+        "outputDir": "C:/Users/ridha/Desktop/Achats/application/crud-tuto-front/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {},
         "id": "",
         "name": "",
-        "testDir": "C:/Users/ridha/Desktop/crud-tuto-front/tests",
+        "testDir": "C:/Users/ridha/Desktop/Achats/application/crud-tuto-front/tests",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -87,36 +87,42 @@
                 {
                   "workerIndex": 0,
                   "status": "failed",
-                  "duration": 23820,
+                  "duration": 3382,
                   "error": {
-                    "message": "Error: page.click: Target page, context or browser has been closed\nCall log:\n  \u001b[2m- waiting for locator('//button[text()=\\'Add \\']')\u001b[22m\n",
-                    "stack": "Error: page.click: Target page, context or browser has been closed\nCall log:\n  \u001b[2m- waiting for locator('//button[text()=\\'Add \\']')\u001b[22m\n\n    at C:\\Users\\ridha\\Desktop\\crud-tuto-front\\tests\\facture.test.ts:28:16",
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/facture\nCall log:\n  \u001b[2m- navigating to \"http://localhost:4200/facture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/facture\nCall log:\n  \u001b[2m- navigating to \"http://localhost:4200/facture\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\facture.test.ts:10:16",
                     "location": {
-                      "file": "C:\\Users\\ridha\\Desktop\\crud-tuto-front\\tests\\facture.test.ts",
+                      "file": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\facture.test.ts",
                       "column": 16,
-                      "line": 28
+                      "line": 10
                     },
-                    "snippet": "\u001b[0m \u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mselectOption(\u001b[32m\"select#archiv\"\u001b[39m\u001b[33m,\u001b[39m { label\u001b[33m:\u001b[39m \u001b[32m\"oui\"\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 27 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m\"//button[text()='Add ']\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m5000\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 31 |\u001b[39m     \u001b[36mawait\u001b[39m browser\u001b[33m.\u001b[39mclose()\u001b[33m;\u001b[39m\u001b[0m"
+                    "snippet": "\u001b[0m \u001b[90m  8 |\u001b[39m     \u001b[36mconst\u001b[39m page \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mnewPage()\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"http://localhost:4200/facture\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m\"text=Add new Facture\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m\n \u001b[90m 13 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m\"input[placeholder='Montant Remise']\"\u001b[39m\u001b[33m,\u001b[39m \u001b[32m\"20\"\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
                   },
                   "errors": [
                     {
                       "location": {
-                        "file": "C:\\Users\\ridha\\Desktop\\crud-tuto-front\\tests\\facture.test.ts",
+                        "file": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\facture.test.ts",
                         "column": 16,
-                        "line": 28
+                        "line": 10
                       },
-                      "message": "Error: page.click: Target page, context or browser has been closed\nCall log:\n  \u001b[2m- waiting for locator('//button[text()=\\'Add \\']')\u001b[22m\n\n\n\u001b[0m \u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mselectOption(\u001b[32m\"select#archiv\"\u001b[39m\u001b[33m,\u001b[39m { label\u001b[33m:\u001b[39m \u001b[32m\"oui\"\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 27 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m\"//button[text()='Add ']\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m5000\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 31 |\u001b[39m     \u001b[36mawait\u001b[39m browser\u001b[33m.\u001b[39mclose()\u001b[33m;\u001b[39m\u001b[0m\n\n\u001b[2m    at C:\\Users\\ridha\\Desktop\\crud-tuto-front\\tests\\facture.test.ts:28:16\u001b[22m"
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/facture\nCall log:\n  \u001b[2m- navigating to \"http://localhost:4200/facture\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m  8 |\u001b[39m     \u001b[36mconst\u001b[39m page \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mnewPage()\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"http://localhost:4200/facture\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m\"text=Add new Facture\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m\n \u001b[90m 13 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m\"input[placeholder='Montant Remise']\"\u001b[39m\u001b[33m,\u001b[39m \u001b[32m\"20\"\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\n\u001b[2m    at C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\facture.test.ts:10:16\u001b[22m"
                     }
                   ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-05-30T18:47:05.532Z",
-                  "attachments": [],
+                  "startTime": "2024-06-13T10:28:41.221Z",
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\test-results\\facture-Add-Facture-test\\test-failed-1.png"
+                    }
+                  ],
                   "errorLocation": {
-                    "file": "C:\\Users\\ridha\\Desktop\\crud-tuto-front\\tests\\facture.test.ts",
+                    "file": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\facture.test.ts",
                     "column": 16,
-                    "line": 28
+                    "line": 10
                   }
                 }
               ],
@@ -138,7 +144,7 @@
       "specs": [
         {
           "title": "Add Operateur test",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -150,17 +156,47 @@
               "results": [
                 {
                   "workerIndex": 1,
-                  "status": "passed",
-                  "duration": 9243,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 3355,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/operateur\nCall log:\n  \u001b[2m- navigating to \"http://localhost:4200/operateur\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/operateur\nCall log:\n  \u001b[2m- navigating to \"http://localhost:4200/operateur\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\operateur.test.ts:10:16",
+                    "location": {
+                      "file": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\operateur.test.ts",
+                      "column": 16,
+                      "line": 10
+                    },
+                    "snippet": "\u001b[0m \u001b[90m  8 |\u001b[39m     \u001b[36mconst\u001b[39m page \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mnewPage()\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"http://localhost:4200/operateur\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m\"text=Add new Operateur\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m\n \u001b[90m 13 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m\"input#nom\"\u001b[39m\u001b[33m,\u001b[39m \u001b[32m\"boulares\"\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\operateur.test.ts",
+                        "column": 16,
+                        "line": 10
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/operateur\nCall log:\n  \u001b[2m- navigating to \"http://localhost:4200/operateur\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m  8 |\u001b[39m     \u001b[36mconst\u001b[39m page \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mnewPage()\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"http://localhost:4200/operateur\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m\"text=Add new Operateur\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m\n \u001b[90m 13 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m\"input#nom\"\u001b[39m\u001b[33m,\u001b[39m \u001b[32m\"boulares\"\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\n\u001b[2m    at C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\operateur.test.ts:10:16\u001b[22m"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-05-30T18:47:05.559Z",
-                  "attachments": []
+                  "startTime": "2024-06-13T10:28:41.215Z",
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\test-results\\operateur-Add-Operateur-test\\test-failed-1.png"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\operateur.test.ts",
+                    "column": 16,
+                    "line": 10
+                  }
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "f8848eeac22c39aa613d-a529a697f4064e2fed75",
@@ -178,7 +214,7 @@
       "specs": [
         {
           "title": "Add Product test",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -190,17 +226,47 @@
               "results": [
                 {
                   "workerIndex": 2,
-                  "status": "passed",
-                  "duration": 9347,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 3398,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/\nCall log:\n  \u001b[2m- navigating to \"http://localhost:4200/\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/\nCall log:\n  \u001b[2m- navigating to \"http://localhost:4200/\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\produit.test.ts:10:16",
+                    "location": {
+                      "file": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\produit.test.ts",
+                      "column": 16,
+                      "line": 10
+                    },
+                    "snippet": "\u001b[0m \u001b[90m  8 |\u001b[39m     \u001b[36mconst\u001b[39m page \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mnewPage()\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"http://localhost:4200/\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m\"text=Add new Product\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m\n \u001b[90m 13 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m\"input[placeholder='Product Code']\"\u001b[39m\u001b[33m,\u001b[39m \u001b[32m\"5\"\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\produit.test.ts",
+                        "column": 16,
+                        "line": 10
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/\nCall log:\n  \u001b[2m- navigating to \"http://localhost:4200/\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m  8 |\u001b[39m     \u001b[36mconst\u001b[39m page \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mnewPage()\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"http://localhost:4200/\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m\"text=Add new Product\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m\n \u001b[90m 13 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m\"input[placeholder='Product Code']\"\u001b[39m\u001b[33m,\u001b[39m \u001b[32m\"5\"\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\n\u001b[2m    at C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\produit.test.ts:10:16\u001b[22m"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-05-30T18:47:05.553Z",
-                  "attachments": []
+                  "startTime": "2024-06-13T10:28:41.223Z",
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\test-results\\produit-Add-Product-test\\test-failed-1.png"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ridha\\Desktop\\Achats\\application\\crud-tuto-front\\tests\\produit.test.ts",
+                    "column": 16,
+                    "line": 10
+                  }
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "fe1cc8b4fb895f31bc1f-69575d0210c259874636",
@@ -213,11 +279,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2024-05-30T18:47:04.938Z",
-    "duration": 24560.472999999998,
-    "expected": 2,
+    "startTime": "2024-06-13T10:28:40.671Z",
+    "duration": 4202.268,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 3,
     "flaky": 0
   }
 }
