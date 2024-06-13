@@ -18,15 +18,15 @@ services:
     depends_on:
       - mysqldb
     container_name: Back-Achat
-    image: mohamedridhaa/achat-back:tagname
+    image: mohamedridhaa/back-test:tagname
     restart: unless-stopped
     ports:
       - 8089:8089
   front:
     container_name: Front-Achat
-    image: mohamedridhaa/achats:tagname
+    image: mohamedridhaa/front-test:tagname
     restart: unless-stopped
     ports:
-      - 80:80
+      - 4200:4200
 volumes:
   db:

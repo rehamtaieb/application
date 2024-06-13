@@ -8,8 +8,8 @@ pipeline {
         SONARQUBE_USERNAME = 'admin'
         SONARQUBE_PASSWORD = 'Facebook1'
         BRANCH_NAME = 'FournisseurTest'
-        registry_front = "mohamedridhaa/achats"
-        registry = "mohamedridhaa/achat-back"
+        registry_front = "mohamedridhaa/front-test"
+        registry = "mohamedridhaa/back-test"
         registryCredential = 'DockerHub'
         dockerImage = ''
         INFISICAL_TOKEN = credentials('infisical-service-token')
@@ -192,7 +192,7 @@ pipeline {
         }
          stage('Building image Front') {
             steps {
-                dir('Front/crud-tuto-front') {
+                dir('crud-tuto-front') {
                     script {
                         try {
                           dockerImageFront = docker.build registry_front + ":tagname"
@@ -207,7 +207,7 @@ pipeline {
         
         stage('Deploy Back image on Docker') {
             steps {
-                dir('Back/achat') {
+                dir('Back copy/achat') {
                     script {
                         try {
                             docker.withRegistry('', registryCredential) {
@@ -282,6 +282,14 @@ pipeline {
 
     }
 }*/
+        stage('Continuous Testing') {
+            steps {
+                script {
+                    sh "docker compose up -d"
+                    sh "npx playwright test"
+                }
+            }
+        }
 
 
     
