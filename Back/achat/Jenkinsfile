@@ -284,10 +284,12 @@ pipeline {
 }*/
         stage('Continuous Testing') {
             steps {
+                 dir('Back/achat'){
                 script {
                     sh "docker compose up -d"
                     sh "npx playwright test"
                 }
+                 }
             }
         }
 
