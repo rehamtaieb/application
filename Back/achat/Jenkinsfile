@@ -290,6 +290,12 @@ pipeline {
                     sh "npx playwright test"
                 }
                  }
+                 dir('crud-tuto-front'){
+                script {
+                   
+                    sh "npx playwright test"
+                }
+                 }
             }
         }
 
