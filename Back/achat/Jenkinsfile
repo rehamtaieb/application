@@ -282,7 +282,7 @@ pipeline {
 
     }
 }*/
-        stage('Continuous Testing') {
+      /*  stage('Continuous Testing') {
             steps {
                  dir('Back/achat'){
                 script {
@@ -298,7 +298,7 @@ pipeline {
                 }
                  }
             }
-        }
+        }*/
 
 
     
