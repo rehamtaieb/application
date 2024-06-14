@@ -10,7 +10,7 @@ services:
     volumes:
       - db:/var/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: cm9vdA==
+      MYSQL_ROOT_PASSWORD: root
   backend:
     depends_on:
       - mysqldb
