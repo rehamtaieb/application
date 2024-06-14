@@ -162,7 +162,7 @@ pipeline {
             }
         }
 
-        stage('Nexus deployment') {
+        /*stage('Nexus deployment') {
             steps {
                 dir('Back/achat') {
                     script {
@@ -175,7 +175,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
         stage('Building image Back') {
             steps {
                 dir('Back/achat') {
