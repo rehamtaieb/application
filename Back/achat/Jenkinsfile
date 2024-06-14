@@ -287,13 +287,13 @@ pipeline {
                  dir('Back/achat'){
                 script {
                     sh "docker compose up -d"
-                    sh "npx playwright test"
+                    
                 }
                  }
                  dir('crud-tuto-front'){
                 script {
-                    sh "npm i -D@playwright/test"
-                    sh "npx playwright install"
+                   /* sh "npm i -D@playwright/test"
+                    sh "npx playwright install"*/
                     sh "npx playwright test"
                 }
                  }
