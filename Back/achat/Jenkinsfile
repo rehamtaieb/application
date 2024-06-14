@@ -292,7 +292,8 @@ pipeline {
                  }
                  dir('crud-tuto-front'){
                 script {
-                   
+                    sh "npm i -D@playwright/test"
+                    sh "npx playwright install"
                     sh "npx playwright test"
                 }
                  }
