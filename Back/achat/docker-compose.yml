@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysqldb:
     container_name: mysqldb
-    image: mysql:8.0
+    image: mysql:5.7.8
     restart: unless-stopped
     ports:
       - 3306:3306
@@ -27,6 +27,6 @@ services:
     image: mohamedridhaa/front-test:tagname
     restart: unless-stopped
     ports:
-      - 4200:4200
+      - 80:80
 volumes:
   db:
