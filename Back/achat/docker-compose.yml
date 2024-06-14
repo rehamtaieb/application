@@ -10,10 +10,7 @@ services:
     volumes:
       - db:/var/mysql
     environment:
-      MYSQL_DATABASE: achatdb
-      MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: cm9vdA==
-      MYSQL_ROOT_HOST: '%'
   backend:
     depends_on:
       - mysqldb
