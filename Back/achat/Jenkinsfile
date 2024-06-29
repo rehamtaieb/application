@@ -269,7 +269,7 @@ pipeline {
                 }
             }
         }
-       stage('Import Reports to DefectDojo') {
+       /*stage('Import Reports to DefectDojo') {
     steps {
         script {
             // Import the report to DefectDojo
@@ -280,7 +280,7 @@ pipeline {
 
 
 
-    }
+    }*/
 }
       /*  stage('Continuous Testing') {
             steps {
