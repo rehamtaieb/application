@@ -8,7 +8,7 @@ pipeline {
         SONARQUBE_USERNAME = 'admin'
         SONARQUBE_PASSWORD = 'Facebook1'
         BRANCH_NAME = 'FournisseurTest'
-        registry_front = "mohamedridhaa/achats"
+        registry_front = "mohamedridhaa/front-test"
         registry = "mohamedridhaa/back-test"
         registryCredential = 'DockerHub'
         dockerImage = ''
@@ -193,7 +193,7 @@ pipeline {
         }
          stage('Building image Front') {
             steps {
-                dir('Front/crud-tuto-front') {
+                dir('crud-tuto-front') {
                     script {
                         try {
                           dockerImageFront = docker.build registry_front + ":tagname"
