@@ -20,6 +20,7 @@ pipeline {
         DEFECTDOJO_API_TOKEN = '7720bd55755821192c11d23305ba3dd1493558b5' // Replace with your actual token
         ENGAGEMENT_ID = '1' // Replace with the actual engagement ID
         SSH_KEY_PATH = '/var/lib/jenkins/.ssh/ansible.pem'
+        KUBECONFIG = '/var/lib/jenkins/workspace/DevSecOps/Back/achat/.kube/config'
     }
     stages {
         stage("clone repo") {
@@ -300,7 +301,14 @@ pipeline {
             }
         }*/
 
-
+        stages {
+        stage('Setup kubeconfig') {
+            steps {
+                sh '''
+                az aks get-credentials --resource-group aks-Achats --name aks-achats-cluster --file $KUBECONFIG --overwrite-existing
+                '''
+            }
+        }
     
         stage('AKS Deploy'){
             when {
@@ -309,9 +317,9 @@ pipeline {
             steps{
                 dir('Back/achat') {
                     script {
-                        withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'azurek8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                       
                             sh 'kubectl apply -f achats-manifests.yml'
-                        }
+                        
                     }               
                 }
             }
