@@ -323,7 +323,7 @@ pipeline {
             }
             steps{
                 script{
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'kubeconfig', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'azurek8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
                             sh 'docker run --rm -v `pwd`:/host aquasec/kube-bench:latest install'
                             sh './kube-bench --logtostderr --json > kube-bench-report.json'
                             sh 'cat kube-bench-report.txt'
@@ -424,4 +424,4 @@ pipeline {
         }
     */
     }
-}
+
