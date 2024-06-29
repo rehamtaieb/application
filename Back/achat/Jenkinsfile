@@ -38,20 +38,21 @@ pipeline {
             }
         }
         stage('Git Secret Management') {
-            steps {
-                script {
-                    try {
-                        sh 'rm trufflehog.json || true'
-                        sh 'docker run gesellix/trufflehog --json https://github.com/rehamtaieb/application.git > trufflehog.json'
-                        sh 'cat trufflehog.json'
-                    } catch (Exception e) {
-                        emailext (attachLog: true, body: 'The pipeline number'+":$BUILD_NUMBER"+' is failed !! Trufflehog detected potential secrets in the repository. Please review and remove them before proceeding.', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
-                        throw e
-                    }
-                }
+    steps {
+        script {
+            try {
+                sh 'rm trufflehog.json || true'
+                sh 'docker run --rm gesellix/trufflehog --json https://github.com/rehamtaieb/application.git > trufflehog.json'
+                sh 'cat trufflehog.json'
+            } catch (Exception e) {
+                emailext (attachLog: true, body: 'The pipeline number ' + BUILD_NUMBER + ' has failed! Trufflehog detected potential secrets in the repository. Please review and remove them before proceeding.', subject: 'Jenkins Pipeline Failed', to: 'metjaku@gmail.com')
+                throw e
+            } finally {
+                sh 'docker ps -a -q --filter ancestor=gesellix/trufflehog | xargs docker rm -f'
             }
-        
         }
+    }
+}
         stage('Infisical Secret Management') {
             steps { 
                 dir('Back/achat') {
