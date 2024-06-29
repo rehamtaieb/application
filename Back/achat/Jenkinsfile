@@ -8,7 +8,7 @@ pipeline {
         SONARQUBE_USERNAME = 'admin'
         SONARQUBE_PASSWORD = 'Facebook1'
         BRANCH_NAME = 'FournisseurTest'
-        registry_front = "mohamedridhaa/front-test"
+        registry_front = "mohamedridhaa/achats"
         registry = "mohamedridhaa/back-test"
         registryCredential = 'DockerHub'
         dockerImage = ''
@@ -193,7 +193,7 @@ pipeline {
         }
          stage('Building image Front') {
             steps {
-                dir('crud-tuto-front') {
+                dir('Front/crud-tuto-front') {
                     script {
                         try {
                           dockerImageFront = docker.build registry_front + ":tagname"
@@ -327,7 +327,7 @@ pipeline {
                     withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'azurek8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
                             sh 'docker run --rm -v `pwd`:/host aquasec/kube-bench:latest install'
                             sh './kube-bench --logtostderr --json > kube-bench-report.json'
-                            sh 'cat kube-bench-report.txt'
+                            sh 'cat kube-bench-report.json'
 
                 }
             }
