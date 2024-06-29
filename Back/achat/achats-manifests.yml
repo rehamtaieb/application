@@ -151,7 +151,7 @@ spec:
     spec:
       containers:
       - name: angular
-        image: mohamedridhaa/achats-angular:tagname
+        image: mohamedridhaa/achats-angular:latest
         ports:
         - containerPort: 80
 ---
