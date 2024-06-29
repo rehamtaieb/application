@@ -162,7 +162,7 @@ pipeline {
             }
         }
 
-        /*stage('Nexus deployment') {
+        stage('Nexus deployment') {
             steps {
                 dir('Back/achat') {
                     script {
@@ -175,7 +175,7 @@ pipeline {
                     }
                 }
             }
-        }*/
+        }
         stage('Building image Back') {
             steps {
                 dir('Back/achat') {
@@ -268,7 +268,7 @@ pipeline {
                     archiveArtifacts artifacts: 'trivy-report.json', allowEmptyArchive: true
                 }
             }
-        }/*
+        }
        stage('Import Reports to DefectDojo') {
     steps {
         script {
@@ -281,7 +281,7 @@ pipeline {
 
 
     }
-}*/
+}
       /*  stage('Continuous Testing') {
             steps {
                  dir('Back/achat'){
@@ -309,7 +309,7 @@ pipeline {
             steps{
                 dir('Back/achat') {
                     script {
-                        withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'kubeconfig', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                        withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'azurek8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
                             sh 'kubectl apply -f achats-manifests.yml'
                         }
                     }               
