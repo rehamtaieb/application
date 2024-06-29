@@ -302,17 +302,6 @@ pipeline {
         }*/
 
         
-        stage('Setup kubeconfig') {
-            when {
-                expression { params.CLOUD_TYPE == 'public' }
-            }
-            steps {
-                sh '''
-                az aks get-credentials --resource-group aks-Achats --name aks-achats-cluster --file $KUBECONFIG --overwrite-existing
-                '''
-            }
-        }
-        
     
         stage('AKS Deploy'){
             when {
@@ -321,9 +310,9 @@ pipeline {
             steps{
                 dir('Back/achat') {
                     script {
-                       
+                        withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'azurek8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
                             sh 'kubectl apply -f achats-manifests.yml'
-                        
+                        }
                     }               
                 }
             }
