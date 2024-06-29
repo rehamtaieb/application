@@ -301,14 +301,18 @@ pipeline {
             }
         }*/
 
-        stages {
+        
         stage('Setup kubeconfig') {
+            when {
+                expression { params.CLOUD_TYPE == 'public' }
+            }
             steps {
                 sh '''
                 az aks get-credentials --resource-group aks-Achats --name aks-achats-cluster --file $KUBECONFIG --overwrite-existing
                 '''
             }
         }
+        
     
         stage('AKS Deploy'){
             when {
