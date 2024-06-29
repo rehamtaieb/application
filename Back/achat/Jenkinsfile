@@ -280,8 +280,8 @@ pipeline {
 
 
 
-    }*/
-}
+    }
+}*/
       /*  stage('Continuous Testing') {
             steps {
                  dir('Back/achat'){
