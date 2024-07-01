@@ -256,7 +256,7 @@
         kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
 
     - name: Join worker node to cluster
-      shell: "{{ kubeadm_join_cmd }}"
+      shell: "{{ kubeadm_join }}"
       register: join_output
       ignore_errors: yes
       become: yes
