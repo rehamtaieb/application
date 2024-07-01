@@ -250,6 +250,7 @@
       register: kubeadm_join_cmd
       become: yes
       ignore_errors: yes
+      delegate_to: 20.108.66.230
 
     - set_fact:
         kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
