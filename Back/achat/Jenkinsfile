@@ -374,7 +374,7 @@ pipeline {
         }
     }
 }
-        stage('Private_cluster Deploy'){
+        /*stage('Private_cluster Deploy'){
             when {
                 expression { params.CLOUD_TYPE == 'private' }
             }
@@ -387,7 +387,7 @@ pipeline {
                     }               
                 }
             }
-        }
+        }*/
         /* stage('Transfer kubeconfig') {
             when {
         expression { params.CLOUD_TYPE == 'private' }
