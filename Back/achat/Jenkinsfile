@@ -383,7 +383,7 @@ pipeline {
                 }
             }
         }*/
-         stage('Install Helm Charts') {
+        /* stage('Install Helm Charts') {
              when {
         expression { params.CLOUD_TYPE == 'private' }
     }
@@ -399,7 +399,7 @@ pipeline {
                 }
             }
             }
-        }
+        }*/
 
        /* stage('DAST ZAP Attacks'){
             steps{
