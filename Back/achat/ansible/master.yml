@@ -1,22 +1,4 @@
 ---
-- name: Check Kubernetes Cluster Status
-  hosts: localhost  # Assume Jenkins or local machine where playbook runs
-  connection: local
-  gather_facts: false
-
-  tasks:
-    - name: Check if Kubernetes API is reachable
-      uri:
-        url: "https://{{ control_plane_ip }}:6443/version"
-        method: GET
-        validate_certs: no  # Adjust based on your environment's SSL configuration
-      register: kubernetes_status
-      ignore_errors: true
-
-    - name: Fail playbook if Kubernetes cluster is already up
-      fail:
-        msg: "Kubernetes cluster is already up and running."
-      when: kubernetes_status.status == 200
 - name: Setup Kubernetes Cluster
   hosts: all
   become: yes
