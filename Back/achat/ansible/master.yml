@@ -9,7 +9,7 @@
     network: calico
     service_cidr: "10.96.0.0/12"
     pod_network_cidr: "10.244.0.0/16"
-    control_plane_ip: "192.168.22.85"
+    control_plane_ip: "20.108.66.230"
     kubeadm_opts: ""
     init_opts: ""
 
@@ -154,7 +154,7 @@
     network: calico
     service_cidr: "10.96.0.0/12"
     pod_network_cidr: "10.244.0.0/16"
-    control_plane_ip: "192.168.22.85"
+    control_plane_ip: "20.108.66.230"
     kubeadm_opts: ""
     init_opts: ""
 
@@ -173,8 +173,8 @@
     - name: init kubernetes cluster
       when: reset_cluster is succeeded
       shell: |
-        kubeadm init --pod-network-cidr={{ pod_network_cidr }} \
-                                  --apiserver-advertise-address {{ control_plane_ip }}
+        kubeadm init --pod-network-cidr={{ pod_network_cidr }} 
+                                  
       become: true
       register: init_cluster
 
@@ -217,7 +217,7 @@
     network: calico
     service_cidr: "10.96.0.0/12"
     pod_network_cidr: "10.244.0.0/16"
-    control_plane_ip: "192.168.22.85"
+    control_plane_ip: "20.108.66.230"
     kubeadm_opts: ""
     init_opts: ""
    
@@ -249,7 +249,7 @@
     network: calico
     service_cidr: "10.96.0.0/12"
     pod_network_cidr: "10.244.0.0/16"
-    control_plane_ip: "192.168.22.85"
+    control_plane_ip: "20.108.66.230"
     kubeadm_opts: ""
     init_opts: ""
 
