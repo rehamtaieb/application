@@ -365,6 +365,7 @@ pipeline {
                             playbook: 'master.yml',
                             inventory: 'inventory.ini',
                             extras: '--private-key ${SSH_KEY_PATH} -u root'
+                            
                         )
                 
            
