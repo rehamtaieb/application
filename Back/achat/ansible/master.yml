@@ -1,4 +1,22 @@
 ---
+- name: Check Kubernetes Cluster Status
+  hosts: localhost  # Assume Jenkins or local machine where playbook runs
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Check if Kubernetes API is reachable
+      uri:
+        url: "https://{{ control_plane_ip }}:6443/version"
+        method: GET
+        validate_certs: no  # Adjust based on your environment's SSL configuration
+      register: kubernetes_status
+      ignore_errors: true
+
+    - name: Fail playbook if Kubernetes cluster is already up
+      fail:
+        msg: "Kubernetes cluster is already up and running."
+      when: kubernetes_status.status == 200
 - name: Setup Kubernetes Cluster
   hosts: all
   become: yes
@@ -170,7 +188,7 @@
     pod_network_cidr: "10.244.0.0/16"
     control_plane_ip: "20.108.66.230"
     kubeadm_opts: ""
-    init_opts: "--apiserver-advertise-address={{ control_plane_ip }}"
+    init_opts: ""
 
   tasks:
     - name: Create appowner group if it doesn't exist
@@ -188,8 +206,7 @@
     - name: Initialize Kubernetes cluster
       when: reset_cluster is succeeded
       shell: |
-        kubeadm init --pod-network-cidr={{ pod_network_cidr }} {{ init_opts }}
-                                        
+        kubeadm init --pod-network-cidr={{ pod_network_cidr }}
       become: yes
       register: init_cluster
 
