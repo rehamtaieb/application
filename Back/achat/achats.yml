@@ -4,120 +4,134 @@ metadata:
   name: mysql-pv
 spec:
   capacity:
-    storage: 4Gi
+    storage: 5Gi
   accessModes:
     - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: manual
   hostPath:
     path: "/mnt/data/mysql"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pv-claim
+  name: mysql-pvc
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 4Gi
-  storageClassName: manual
+      storage: 5Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql-deployment
-  labels:
-    app: mysql
+  name: mysql
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: mysql
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
         app: mysql
     spec:
       containers:
-      - name: mysql
-        image: mysql:8.0
-        ports:
-        - containerPort: 3306
+      - image: mysql:8.0
+        name: mysql
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: "root"
-        - name: MYSQL_ALLOW_EMPTY_PASSWORD
-          value: "yes"
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password
+        ports:
+        - containerPort: 3306
+          name: mysql
         volumeMounts:
         - name: mysql-persistent-storage
           mountPath: /var/lib/mysql
       volumes:
       - name: mysql-persistent-storage
         persistentVolumeClaim:
-          claimName: mysql-pv-claim
+          claimName: mysql-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-service
-  labels:
-    app: mysql
+  name: mysql
 spec:
   ports:
-  - port: 3306
-    targetPort: 3306
+    - port: 3306
   selector:
     app: mysql
-  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spring-boot-deployment
-  labels:
-    app: spring-boot
+  name: springboot-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: spring-boot
+      app: springboot-app
   template:
     metadata:
       labels:
-        app: spring-boot
+        app: springboot-app
     spec:
       containers:
-      - name: spring-boot
+      - name: springboot-app
         image: mohamedridhaa/achat-back:tagname
         ports:
         - containerPort: 8089
         env:
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:mysql://10.0.184.215:3306/achatdb?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+          value: jdbc:mysql://mysql:3306/achatdb?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
         - name: SPRING_DATASOURCE_USERNAME
-          value: "root"
+          value: root
         - name: SPRING_DATASOURCE_PASSWORD
-          value: "root"
-        - name: SPRING_JPA_SHOW_SQL
-          value: "true"
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password
         - name: SPRING_JPA_HIBERNATE_DDL_AUTO
           value: update
+        - name: SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT
+          value: org.hibernate.dialect.MySQL5InnoDBDialect
+        - name: SERVER_SERVLET_CONTEXT_PATH
+          value: /SpringMVC
+        - name: SERVER_PORT
+          value: "8089"
+        - name: LOGGING_LEVEL_COM_ZAXXER_HIKARI
+          value: INFO
+        - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
+          value: INFO
+        - name: LOGGING_LEVEL_ROOT
+          value: INFO
+        - name: LOGGING_PATTERN_CONSOLE
+          value: "%d{yyyy-MM-dd HH:mm:ss} - %-5level - %logger{60} - %msg%n"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: spring-boot-service
-  labels:
-    app: spring-boot
+  name: springboot-app
 spec:
-  ports:
-  - port: 8089
-    targetPort: 8089
   selector:
-    app: spring-boot
+    app: springboot-app
+  ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8089
   type: LoadBalancer
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+type: Opaque
+data:
+  password: cm9vdA==  # base64 encoded 'root'
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -137,7 +151,7 @@ spec:
     spec:
       containers:
       - name: angular
-        image: mohamedridhaa/achats:tagname
+        image: mohamedridhaa/achats-angular:latest
         ports:
         - containerPort: 80
 ---
@@ -148,7 +162,7 @@ metadata:
   labels:
     app: angular
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
   - port: 80
     targetPort: 80

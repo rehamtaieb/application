@@ -374,6 +374,20 @@ pipeline {
         }
     }
 }
+        stage('Private_cluster Deploy'){
+            when {
+                expression { params.CLOUD_TYPE == 'private' }
+            }
+            steps{
+                dir('Back/achat') {
+                    script {
+                        withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'private_kubeconfig', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                            sh 'kubectl apply -f achats.yml'
+                        }
+                    }               
+                }
+            }
+        }
         /* stage('Transfer kubeconfig') {
             when {
         expression { params.CLOUD_TYPE == 'private' }
