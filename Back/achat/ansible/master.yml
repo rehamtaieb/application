@@ -250,12 +250,13 @@
       register: kubeadm_join_cmd
       become: yes
       ignore_errors: yes
+      delegate_to: 20.108.66.230
 
     - set_fact:
         kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
 
     - name: Join worker node to cluster
-      shell: "{{ kubeadm_join }}"
+      shell: "{{ kubeadm_join_cmd }}"
       register: join_output
       ignore_errors: yes
       become: yes
