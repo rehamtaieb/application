@@ -245,6 +245,30 @@
     init_opts: ""
 
   tasks:
+    - name: Reset Kubernetes components on worker node
+      shell: "kubeadm reset --force"
+      become: yes
+      ignore_errors: yes
+
+    - name: Clean up CNI configurations
+      shell: |
+        rm -rf /etc/cni/net.d
+        rm -rf /var/lib/cni/
+        rm -rf /var/lib/kubelet/*
+        rm -rf /etc/kubernetes/
+      become: yes
+      ignore_errors: yes
+
+    - name: Stop kubelet service
+      systemd:
+        state: stopped
+        name: kubelet
+      become: yes
+
+    - name: Ensure port 10250 is not in use
+      shell: "fuser -k 10250/tcp"
+      become: yes
+      ignore_errors: yes
     - name: Generate join command
       shell: kubeadm token create --print-join-command
       register: kubeadm_join_cmd
