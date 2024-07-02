@@ -319,3 +319,13 @@
       poll: 0
       ignore_errors: yes
       become: yes
+
+    - name: Deploy applications using Kubernetes manifest
+      hosts: k8s_worker
+      become: yes
+      vars:
+        manifest_file: "/root/manifests/achats.yml"
+      tasks:
+        - name: Apply Kubernetes manifest
+          command: kubectl apply -f {{ manifest_file }}
+          become: yes
