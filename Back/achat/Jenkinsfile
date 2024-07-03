@@ -17,7 +17,7 @@ pipeline {
         SNYK_TOKEN = 'Snyk'
         GITHUB_CREDENTIALS = credentials('Github')
         DEFECTDOJO_URL = 'http://192.168.22.12:8080/'
-        DEFECTDOJO_API_TOKEN = '7720bd55755821192c11d23305ba3dd1493558b5' // Replace with your actual token
+        DEFECTDOJO_API_TOKEN = '58f868eb3e9282b5302942de48b3bafd2ada3ded' // Replace with your actual token
         ENGAGEMENT_ID = '1' // Replace with the actual engagement ID
         SSH_KEY_PATH = '/var/lib/jenkins/.ssh/ansible3.pem'
         ANSIBLE_HOST_KEY_CHECKING = 'False'
@@ -263,27 +263,7 @@ pipeline {
                 }
             }
         }
-        stage('Publish Report') {
-            steps {
-                script {
-                    // Example step to publish the report, e.g., archiving the artifacts
-                    archiveArtifacts artifacts: 'trivy-report.json', allowEmptyArchive: true
-                }
-            }
-        }
-       /*stage('Import Reports to DefectDojo') {
-    steps {
-        script {
-            // Import the report to DefectDojo
-            sh 'curl -X POST "http://192.168.22.12:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 7720bd55755821192c11d23305ba3dd1493558b5" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Trivy Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@trivy-report.json" -F "product_name=DevSecOps" -F "engagement_name=Achats"'
-            sh 'curl -X POST "http://192.168.22.12:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 7720bd55755821192c11d23305ba3dd1493558b5" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Trufflehog Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@trufflehog.json" -F "product_name=DevSecOps" -F "engagement_name=Achats"'      
-            sh 'curl -X POST "http://192.168.22.12:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 7720bd55755821192c11d23305ba3dd1493558b5" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Snyk Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@snyk_iac.json" -F "product_name=DevSecOps" -F "engagement_name=Achats"'
-        }
-
-
-
-    }
-}*/
+        
       /*  stage('Continuous Testing') {
             steps {
                  dir('Back/achat'){
@@ -372,6 +352,31 @@ pipeline {
            
             }
         }
+    }
+}
+        stage('Publish Report') {
+            steps {
+                script {
+                    // Example step to publish the report, e.g., archiving the artifacts
+                    archiveArtifacts artifacts: 'trivy-report.json', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'kube-bench-report.json', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'snyk_iac.json', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'trufflehog.json', allowEmptyArchive: true
+
+                }
+            }
+        }
+       stage('Import Reports to DefectDojo') {
+    steps {
+        script {
+            // Import the report to DefectDojo
+            sh 'curl -X POST "http://20.77.33.32:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 58f868eb3e9282b5302942de48b3bafd2ada3ded" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Trivy Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@trivy-report.json" -F "product_name=DevSecOps" -F "engagement_name=Achats"'
+            sh 'curl -X POST "http://20.77.33.32:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 58f868eb3e9282b5302942de48b3bafd2ada3ded" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Trufflehog Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@trufflehog.json" -F "product_name=DevSecOps" -F "engagement_name=Achats"'      
+            sh 'curl -X POST "http://20.77.33.32:8080/api/v2/import-scan/" -H  "accept: application/json" -H  "Content-Type: multipart/form-data"  -H "Authorization: Token 58f868eb3e9282b5302942de48b3bafd2ada3ded" -F "minimum_severity=Info" -F "active=true" -F "verified=true" -F "scan_type=Snyk Scan" -F "close_old_findings=false" -F "push_to_jira=false" -F "file=@snyk_iac.json" -F "product_name=DevSecOps" -F "engagement_name=Achats"'
+        }
+
+
+
     }
 }
         /*stage('Private_cluster Deploy'){
