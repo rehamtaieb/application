@@ -164,7 +164,7 @@ spec:
         - containerPort: 80
         env:
         - name: PROFILE
-          value: "production"
+          value: "prod"
 ---
 apiVersion: v1
 kind: Service
