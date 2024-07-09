@@ -10,5 +10,6 @@ export class AppComponent {
   title = 'crudtuto-Front';
   constructor() {
     console.log(`Running in ${environment.environmentName} environment`);
+    console.log(`using ${environment.apiUrl} as ip address`);
   }
 }
