@@ -143,7 +143,7 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: angular-deployment
+  name: deployment-angular
   namespace: prod
   labels:
     app: angular
@@ -169,7 +169,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: angular-service
+  name: service-angular
   namespace: prod
   labels:
     app: angular
