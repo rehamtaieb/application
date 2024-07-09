@@ -12,7 +12,7 @@ RUN npm run build-${PROFILE}
 
 # Stage 2: Serve Angular app using Nginx
 FROM nginx:alpine
-COPY --from=node /app/dist/your-angular-project /usr/share/nginx/html
+COPY --from=node /app/dist/crudtuto-Front /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 
