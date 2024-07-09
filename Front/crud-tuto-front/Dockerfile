@@ -3,7 +3,7 @@ FROM node:14.21.3-alpine as node
 WORKDIR /app
 COPY . .
 RUN npm cache clean --force
-Run npm install --force
+RUN npm install --force
 ARG PROFILE
 ENV PROFILE $PROFILE
 
