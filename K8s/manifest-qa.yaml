@@ -178,16 +178,3 @@ spec:
     targetPort: 80
   selector:
     app: angular
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: spring-boot-app-service-monitor
-  namespace: qa   # Change namespace to "qa"
-spec:
-  selector:
-    matchLabels:
-      app: springboot-app
-  endpoints:
-  - port: http-traffic
-    path: "/actuator/prometheus"
