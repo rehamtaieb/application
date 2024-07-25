@@ -14,7 +14,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-pvc
-   namespace: qa
+  namespace: qa
 spec:
   accessModes:
     - ReadWriteOnce
@@ -26,7 +26,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql
-  namespace: qa   # Change namespace to "qa"
+  namespace: qa
 spec:
   selector:
     matchLabels:
@@ -62,7 +62,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mysql
-  namespace: qa   # Change namespace to "qa"
+  namespace: qa
 spec:
   ports:
     - port: 3306
@@ -73,7 +73,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: springboot-app
-  namespace: qa   # Change namespace to "qa"
+  namespace: qa
 spec:
   replicas: 1
   selector:
@@ -120,7 +120,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: springboot-app
-  namespace: qa   # Change namespace to "qa"
+  namespace: qa
 spec:
   selector:
     app: springboot-app
@@ -134,7 +134,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: mysql-secret
-  namespace: qa   # Change namespace to "qa"
+  namespace: qa
 type: Opaque
 data:
   password: cm9vdA==  # base64 encoded 'root'
@@ -143,7 +143,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: angular-deployment
-  namespace: qa   # Change namespace to "qa"
+  namespace: qa
   labels:
     app: angular
 spec:
@@ -169,7 +169,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: angular-service
-  namespace: qa   # Change namespace to "qa"
+  namespace: qa
   labels:
     app: angular
 spec:
