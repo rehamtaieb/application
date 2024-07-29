@@ -1,0 +1,187 @@
+pipeline {
+    agent any // Default agent, usually the master node or Built-In Node
+    
+    environment {
+        GIT_REPO_URL = 'https://github.com/rehamtaieb/application.git'
+        GIT_BRANCH = 'rihem'
+        SONAR_TOKEN = credentials('Sonarqube')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: "${GIT_REPO_URL}",
+                    branch: "${GIT_BRANCH}",
+                    credentialsId: 'token' // Ensure 'token' is the correct ID of your GitHub token credential in Jenkins
+                
+                // Stash the checked-out source code
+                stash name: 'source-code', includes: '**/*'
+            }
+        }
+        
+        stage('Transfer to Agents') {
+            parallel {
+                stage('BuildAndTestAgent Transfer') {
+                    agent { label 'BuildAndTestAgent' }
+                    steps {
+                        unstash 'source-code'
+                        // Additional steps for BuildAndTestAgent if needed
+                    }
+                }
+                stage('DeploymentAgent Transfer') {
+                    agent { label 'Deployment agent' }
+                    steps {
+                        unstash 'source-code'
+                        // Additional steps for DeploymentAgent if needed
+                    }
+                }
+            }
+        }
+        
+        stage('Clean and Compile Backend') {
+            agent { label 'BuildAndTestAgent' }
+            steps {
+                dir('Back2/achat') {
+                    sh 'mvn clean compile'
+                }
+            }
+        }
+        
+        stage('Clean and Build Frontend') {
+            agent { label 'BuildAndTestAgent' }
+            steps {
+                dir('Front2/crud-tuto-front') {
+                    sh 'npm install --force'
+                    sh 'ng build'
+                }
+            }
+        }
+
+        stage('Unit Test Frontend') {
+            agent { label 'BuildAndTestAgent' }
+            steps {
+                dir('Front2/crud-tuto-front') {
+                    sh 'ng test --watch=false --no-progress --browsers=ChromeHeadless'
+                }
+            }
+        }
+        
+        stage('Unit Test Backend') {
+            agent { label 'BuildAndTestAgent' }
+            steps {
+                dir('Back2/achat') {
+                    sh 'sudo docker ps'
+                    sh 'mvn test'
+                }
+            }
+        }
+        
+        stage('SonarQube Analysis for Back2/achat') {
+            agent { label 'BuildAndTestAgent' }
+            steps {
+                dir('Back2/achat') {
+                    withSonarQubeEnv('sonarqube') {
+                        sh 'mvn clean install -U'
+                        sh 'java --version'
+                        sh 'mvn sonar:sonar -Dsonar.host.url=http://192.168.33.10:9000 -Dsonar.login=$SONAR_TOKEN'
+                    }
+                }
+            }
+        }
+        
+    /* deployment*/
+        
+        stage('Building and Pushing Back-end Image') {
+            agent { label 'Deployment agent' }
+            steps {
+                dir('Back/achat') {
+                    sh 'mvn clean package -DskipTests'
+                    // Build Docker image with QA tag
+                    sh 'sudo docker build -t rihemmatoussi/back1:qa .'
+                    
+                    // Login to Docker Hub
+                    sh 'sudo docker login -u rihemmatoussi -p rihemrihem'
+                    
+                    // Push Docker image
+                    sh 'sudo docker push rihemmatoussi/back1:qa'
+                    
+                    // Display Docker info (optional)
+                    sh 'sudo docker info'
+                }
+            }
+        }
+        
+         stage('Building and Pushing Front-end Image for QA') {
+            agent { label 'Deployment agent' }
+            steps {
+                dir('Front/crud-tuto-front') {
+                    // Build Docker image with Prod tag
+                    sh 'sudo docker build -t rihemmatoussi/front1:qalatest --build-arg PROFILE=qa .'
+                    
+                    // Login to Docker Hub
+                    sh 'sudo docker login -u rihemmatoussi -p rihemrihem'
+                    
+                    // Push Docker image
+                    sh 'sudo docker push rihemmatoussi/front1:qalatest'
+                    
+                    // Display Docker info (optional)
+                    sh 'sudo docker info'
+                }
+            }
+        }
+        
+        stage('Deploy to QA') {
+            agent { label 'Deployment agent' }
+            steps {
+                dir('K8s') {
+                    sh 'kubectl apply -f manifest-qa.yaml'
+                }
+            }
+        }
+        
+        stage('Approval for Prod Deployment') {
+            agent { label 'Deployment agent' }
+            steps {
+                script {
+                    input message: 'Approve deployment to Prod?', ok: 'Deploy'
+                }
+            }
+        }
+        
+        
+        
+          stage('Building and Pushing Front-end Image for Prod') {
+            agent { label 'Deployment agent' }
+            steps {
+                dir('Front/crud-tuto-front') {
+                    // Build Docker image with Prod tag
+                    sh 'sudo docker build -t rihemmatoussi/front1:prod --build-arg PROFILE=prod .'
+                    
+                    // Login to Docker Hub
+                    sh 'sudo docker login -u rihemmatoussi -p rihemrihem'
+                    
+                    // Push Docker image
+                    sh 'sudo docker push rihemmatoussi/front1:prod'
+                    
+                    // Display Docker info (optional)
+                    sh 'sudo docker info'
+                }
+            }
+        }
+        
+       
+
+        stage('Deploy to Prod') {
+            agent { label 'Deployment agent' }
+            steps {
+                dir('K8s') {
+                    sh 'kubectl apply -f manifest-prod.yaml'
+                }
+            }
+        }
+        
+        //other stages
+    }
+    
+    // Post conditions
+}
